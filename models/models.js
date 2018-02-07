@@ -1,15 +1,15 @@
 import mongoose from 'mongoose';
 var Schema = mongoose.Schema;
 
-// const userSchema = new Schema({
-//   name: String,
-//   email: String,
-//   phone: String,
-//   password: String,
-//   profilePhoto: String,
-//   created: { type: Date, default: Date.now },
-//   isSocialAuth: { type: Boolean, default: false }
-// });
+const userSchema = new Schema({
+  name: String,
+  email: String,
+  phone: String,
+  password: String,
+  profilePhoto: String,
+  created: { type: Date, default: Date.now },
+  isSocialAuth: { type: Boolean, default: false }
+});
 
 // const tripSchema = new Schema({
 //   name: String,
