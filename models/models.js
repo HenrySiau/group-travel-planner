@@ -2,11 +2,11 @@ import mongoose from 'mongoose';
 var Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  name: String,
-  email: String,
-  phone: String,
-  password: String,
-  profilePhoto: String,
+  name: {type: String, maxlength: 100, required: true},
+  email: {type: String, maxlength: 100, required: true, unique: true},
+  phone: {type: String, maxlength: 30, required: true},
+  password: {type: String, maxlength: 300, required: true},
+  profilePhoto: {type: String, maxlength: 300},
   created: { type: Date, default: Date.now },
   isSocialAuth: { type: Boolean, default: false }
 });
