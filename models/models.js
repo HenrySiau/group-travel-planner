@@ -33,13 +33,13 @@ const ideaSchema = new Schema({
   updated: Date
 });
 
-// const messageSchema = new Schema({
-//   body: String,
-//   creator: String,
+const messageSchema = new Schema({
+  body: String,
+  creator: String,
   
-//   comments: Array,
-//   peopleLiked: Array
-// });
+  comments: Array,
+  peopleLiked: Array
+});
 
 const kittySchema = new Schema({
   name: String
