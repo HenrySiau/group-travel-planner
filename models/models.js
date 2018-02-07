@@ -23,15 +23,15 @@ const tripSchema = new Schema({
   invitationCode: String
 });
 
-// const ideaSchema = new Schema({
-//   title: String,
-//   creator: { type: Schema.Types.ObjectId, ref: 'User' },
-//   body: String,
-//   comments: Array,
-//   peopleLiked: Array,
-//   created: { type: Date, default: Date.now },
-//   updated: Date
-// });
+const ideaSchema = new Schema({
+  title: String,
+  creator: { type: Schema.Types.ObjectId, ref: 'User' },
+  body: String,
+  comments: Array,
+  peopleLiked: Array,
+  created: { type: Date, default: Date.now },
+  updated: Date
+});
 
 // const messageSchema = new Schema({
 //   body: String,
