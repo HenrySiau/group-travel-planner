@@ -11,17 +11,17 @@ const userSchema = new Schema({
   isSocialAuth: { type: Boolean, default: false }
 });
 
-// const tripSchema = new Schema({
-//   name: String,
-//   description: String,
-//   profilePhoto: String,
-//   menbers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-//   administrators: Array,
-//   photos: Array,
-//   created: { type: Date, default: Date.now },
-//   isActive: Boolean,
-//   invitationCode: String
-// });
+const tripSchema = new Schema({
+  name: String,
+  description: String,
+  profilePhoto: String,
+  menbers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  administrators: Array,
+  photos: Array,
+  created: { type: Date, default: Date.now },
+  isActive: Boolean,
+  invitationCode: String
+});
 
 // const ideaSchema = new Schema({
 //   title: String,
