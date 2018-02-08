@@ -1,8 +1,12 @@
 import config from './config';
 import apiRouter from './api/api';
 import express from 'express';
-const server = express();
 import mongoose from 'mongoose';
+import session from 'express-session';
+
+const server = express();
+server.set('trust proxy', 1); // trust first proxy
+server.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}));
 
 const options = {
   autoIndex: false, // Don't build indexes
@@ -33,6 +37,15 @@ server.get('/', (req, res) => {
 server.get('/newuser', (req, res) => {
   res.render('newUser');
 });
+
+// server.get('/setsession', (req, res) => {
+//   req.session.userName = 'Henry';
+//   res.send('setsession');
+// });
+
+// server.get('/getsession', (req, res) => {
+//   res.render('session', {userName: req.session.userName});
+// });
 
 server.use('/api', apiRouter);
 
