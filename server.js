@@ -12,21 +12,17 @@ const options = {
   // If not connected, return errors immediately rather than waiting for reconnect
   bufferMaxEntries: 0
 };
-mongoose.connect('mongodb://localhost/test',options).then(
-  () => { console.info('mongoose.connect ready to use'); },
-  err => { 
-    /** handle initial connection error */ 
+mongoose.connect('mongodb://localhost/test', options).then(
+  () => {
+    console.info('mongoose.connect ready to use');
+  },
+  err => {
+    /** handle initial connection error */
     console.error('mongoose.connect failed', err);
   }
 );
 
 server.set('view engine', 'ejs');
-
-// server.get('/', (req, res) => {
-//   res.render('index', {
-//     content: '...'
-//   });
-// });
 
 
 
@@ -34,7 +30,12 @@ server.get('/', (req, res) => {
   res.render('index');
 });
 
+server.get('/newuser', (req, res) => {
+  res.render('newUser');
+});
+
 server.use('/api', apiRouter);
+
 server.use(express.static('public'));
 
 server.listen(config.port, config.host, () => {

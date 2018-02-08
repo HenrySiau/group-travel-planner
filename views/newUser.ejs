@@ -1,0 +1,22 @@
+<%- include('general/header') -%>
+
+
+          <div class="d-flex justify-content-center ">
+              <form action="#" method="post" class="form-group">
+                  <p class="col-form-label">User Name</p>
+                  <input name="csrf_token" type=hidden value="{{ session.get('csrf_token') }}">
+                  <input type="text" class="form-control" name="user_name">
+                  <p class="col-form-label">E-mail</p>
+                  <input type="text" class="form-control" name="email">
+                  <p class="col-form-label">Password</p>
+                  <input type="password" class="form-control" name="password">
+                  <p class="col-form-label">Confirm password</p>
+                  <input type="password" class="form-control" name="cnf_password">
+                  <div class="form-group m-2">
+                      <input type="reset" value="Reset" class="btn-info">
+                      <input type="submit" value="Create" class="btn-info">
+                  </div>
+              </form>
+          
+    
+          <%- include('general/footer') -%>
