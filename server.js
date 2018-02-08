@@ -38,14 +38,14 @@ server.get('/newuser', (req, res) => {
   res.render('newUser');
 });
 
-// server.get('/setsession', (req, res) => {
-//   req.session.userName = 'Henry';
-//   res.send('setsession');
-// });
+server.get('/setsession', (req, res) => {
+  req.session.userName = 'Henry';
+  res.send('setsession');
+});
 
-// server.get('/getsession', (req, res) => {
-//   res.render('session', {userName: req.session.userName});
-// });
+server.get('/getsession', (req, res) => {
+  res.render('session', {userName: req.session.userName});
+});
 
 server.use('/api', apiRouter);
 
