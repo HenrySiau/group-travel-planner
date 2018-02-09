@@ -52,7 +52,6 @@ server.get('/newuser', (req, res) => {
 });
 server.post('/newuser', function (req, res) {
   if (!req.body) return res.sendStatus(400);
-  
   res.send('userName: ' + req.body.userName);
 });
 
@@ -63,16 +62,17 @@ server.get('/login', (req, res) => {
     title: 'User Login'
   });
 });
-
+server.post('/login', function (req, res) {
+  if (!req.body) return res.sendStatus(400);
+  req.body.userName = 'Henry';
+  res.redirect('/');
+});
 // logout page
 server.get('/logout', (req, res) => {
   req.session.userName = undefined;
-  // res.render('login', {
-  //   userName: req.session.userName,
-  //   title: 'Login'
-  // });
   res.redirect('/login');
 });
+
 
 server.use('/api', apiRouter);
 
