@@ -1,14 +1,26 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 var Schema = mongoose.Schema;
 
-const userSchema = new Schema({
+const UserSchema = new Schema({
   name: {type: String, maxlength: 100, required: true},
   email: {type: String, maxlength: 100, required: true, unique: true},
-  phone: {type: String, maxlength: 30, required: true},
+  phone: {type: String, maxlength: 30},
   password: {type: String, maxlength: 300, required: true},
   profilePhoto: {type: String, maxlength: 300},
   created: { type: Date, default: Date.now },
   isSocialAuth: { type: Boolean, default: false }
+});
+//hashing a password before saving it to the database
+UserSchema.pre('save', function (next) {
+  var user = this;
+  bcrypt.hash(user.password, 10, function (err, hash){
+    if (err) {
+      return next(err);
+    }
+    user.password = hash;
+    next();
+  });
 });
 
 const tripSchema = new Schema({
@@ -46,8 +58,10 @@ const kittySchema = new Schema({
 });
 
 const Kitten = mongoose.model('Kitten', kittySchema);
+const User = mongoose.model('User', UserSchema);
 
 
 export {
-  Kitten
+  Kitten,
+  User
 };
