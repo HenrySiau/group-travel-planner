@@ -3,10 +3,19 @@ import apiRouter from './api/api';
 import express from 'express';
 import mongoose from 'mongoose';
 import session from 'express-session';
+import bodyParser from 'body-parser';
 
 const server = express();
+
+server.use(bodyParser.urlencoded({ extended: false }));
+
 server.set('trust proxy', 1); // trust first proxy
-server.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}));
+server.use(session({
+  secret: 'keyboard cat',
+  cookie: {
+    maxAge: 60000
+  }
+}));
 
 const options = {
   autoIndex: false, // Don't build indexes
@@ -29,22 +38,40 @@ mongoose.connect('mongodb://localhost/test', options).then(
 server.set('view engine', 'ejs');
 
 
-
+// main page
 server.get('/', (req, res) => {
   res.render('index');
 });
 
+// New user registration
 server.get('/newuser', (req, res) => {
-  res.render('newUser');
+  res.render('newUser', {
+    userName: req.session.userName,
+    title: 'New User'
+  });
+});
+server.post('/newuser', function (req, res) {
+  if (!req.body) return res.sendStatus(400);
+  
+  res.send('userName: ' + req.body.userName);
 });
 
-server.get('/setsession', (req, res) => {
-  req.session.userName = 'Henry';
-  res.send('setsession');
+// Login page
+server.get('/login', (req, res) => {
+  res.render('login', {
+    userName: req.session.userName,
+    title: 'User Login'
+  });
 });
 
-server.get('/getsession', (req, res) => {
-  res.render('session', {userName: req.session.userName});
+// logout page
+server.get('/logout', (req, res) => {
+  req.session.userName = undefined;
+  // res.render('login', {
+  //   userName: req.session.userName,
+  //   title: 'Login'
+  // });
+  res.redirect('/login');
 });
 
 server.use('/api', apiRouter);
