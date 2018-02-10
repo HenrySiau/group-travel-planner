@@ -23,7 +23,7 @@ UserSchema.pre('save', function (next) {
   });
 });
 
-const tripSchema = new Schema({
+const TripSchema = new Schema({
   name: String,
   description: String,
   profilePhoto: String,
@@ -35,7 +35,7 @@ const tripSchema = new Schema({
   invitationCode: String
 });
 
-const ideaSchema = new Schema({
+const IdeaSchema = new Schema({
   title: String,
   creator: { type: Schema.Types.ObjectId, ref: 'User' },
   body: String,
@@ -45,7 +45,7 @@ const ideaSchema = new Schema({
   updated: Date
 });
 
-const messageSchema = new Schema({
+const MessageSchema = new Schema({
   body: String,
   creator: String,
   
