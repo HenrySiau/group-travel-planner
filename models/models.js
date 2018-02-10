@@ -61,6 +61,7 @@ const Kitten = mongoose.model('Kitten', kittySchema);
 const User = mongoose.model('User', UserSchema);
 const Trip = mongoose.model('Trip', TripSchema);
 const Idea = mongoose.model('Idea', IdeaSchema);
+const Message = mongoose.model('Message', MessageChannel);
 
 
 
@@ -68,5 +69,6 @@ export {
   Kitten,
   User,
   Trip,
-  Idea
+  Idea,
+  Message
 };
