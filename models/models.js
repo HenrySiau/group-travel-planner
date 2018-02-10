@@ -60,11 +60,13 @@ const kittySchema = new Schema({
 const Kitten = mongoose.model('Kitten', kittySchema);
 const User = mongoose.model('User', UserSchema);
 const Trip = mongoose.model('Trip', TripSchema);
+const Idea = mongoose.model('Idea', IdeaSchema);
 
 
 
 export {
   Kitten,
   User,
-  Trip
+  Trip,
+  Idea
 };
