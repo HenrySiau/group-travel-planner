@@ -59,9 +59,12 @@ const kittySchema = new Schema({
 
 const Kitten = mongoose.model('Kitten', kittySchema);
 const User = mongoose.model('User', UserSchema);
+const Trip = mongoose.model('Trip', TripSchema);
+
 
 
 export {
   Kitten,
-  User
+  User,
+  Trip
 };
