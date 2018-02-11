@@ -14,13 +14,13 @@ server.use(bodyParser.urlencoded({
 
 server.set('trust proxy', 1); // trust first proxy
 server.use(session({
-    secret: 'keyboard cat',
+    secret: 'gtp work hard',
     cookie: {
         maxAge: 60000
     }
 }));
 
-const options = {
+const mongooseOptions = {
     autoIndex: false, // Don't build indexes
     reconnectTries: Number.MAX_VALUE, // Never stop trying to reconnect
     reconnectInterval: 500, // Reconnect every 500ms
@@ -28,7 +28,7 @@ const options = {
     // If not connected, return errors immediately rather than waiting for reconnect
     bufferMaxEntries: 0
 };
-mongoose.connect('mongodb://localhost/test', options).then(
+mongoose.connect('mongodb://localhost/test', mongooseOptions).then(
     () => {
         console.info('mongoose.connect ready to use');
     },
@@ -45,6 +45,15 @@ server.set('view engine', 'ejs');
 server.get('/', (req, res) => {
     res.render('index');
 });
+
+// middleware that required a login
+function requiresLogin(req, res, next) {
+    if (req.session && req.session.userId) {
+        return next();
+    } else {
+        res.redirect('/login');
+    }
+}
 
 // New user registration
 server.get('/newuser', (req, res) => {
@@ -70,12 +79,17 @@ server.post('/newuser', function (req, res) {
             if (err) {
                 // TODO add a flash to show warnning at the web page
                 console.error('Can not create User name: ' + req.body.username);
+                res.send('userName: ' + req.body.userName);
             } else {
-                return res.redirect('/profile');
+                return res.send('added user');
             }
         });
+
+    } else {
+        // user registration form missing information
+        res.redirect('/newuser');
     }
-    res.send('userName: ' + req.body.userName);
+
 });
 
 // Login page
@@ -90,17 +104,29 @@ server.post('/login', function (req, res) {
     req.body.userName = 'Henry';
     res.redirect('/');
 });
+
 // logout page
-server.get('/logout', (req, res) => {
-    req.session.userName = undefined;
-    res.redirect('/login');
+server.get('/logout', (req, res, next) => {
+    if (req.session) {
+        // delete session object
+        req.session.destroy(function (err) {
+            if (err) {
+                return next(err);
+            } else {
+                return res.redirect('/login');
+            }
+        });
+    }
 });
 
+server.get('/profile', requiresLogin, (req, res) => {
+    res.send('profile page');
+        });
 
-server.use('/api', apiRouter);
+        server.use('/api', apiRouter);
 
-server.use(express.static('public'));
+        server.use(express.static('public'));
 
-server.listen(config.port, config.host, () => {
-    console.info('Express listening on port', config.port);
-});
+        server.listen(config.port, config.host, () => {
+            console.info('Express listening on port', config.port);
+        });
