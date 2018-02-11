@@ -29,3 +29,12 @@
 </div>
     <% } %>
 </div>
+<div>
+
+        <% if(locals.messages.msg){ %>
+            <div class="alert alert-error" role="alert">
+                <strong>Message: <%=messages.msg%></strong> 
+            </div>
+        <% } %>
+
+</div>

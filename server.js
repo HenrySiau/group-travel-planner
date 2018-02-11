@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import session from 'express-session';
 import bodyParser from 'body-parser';
 import User from './models/models';
+import cookieParser from 'cookie-parser';
+import flash from 'connect-flash';
 
 const server = express();
 
@@ -13,12 +15,21 @@ server.use(bodyParser.urlencoded({
 }));
 
 server.set('trust proxy', 1); // trust first proxy
+server.use(cookieParser('cp-gtplanner-secret'));
 server.use(session({
     secret: 'gtp work hard',
+    resave: true,
+    saveUninitialized: true,
     cookie: {
         maxAge: 60000
     }
 }));
+server.use(flash());
+// server.use((req, res, next) => {
+//     // Pass the flash prototype; the templates will use it to get the messages
+//     res.locals.flash = req.flash;
+//     next();
+//     });
 
 const mongooseOptions = {
     autoIndex: false, // Don't build indexes
@@ -40,23 +51,25 @@ mongoose.connect('mongodb://localhost/test', mongooseOptions).then(
 
 server.set('view engine', 'ejs');
 
+// middleware that required a login
+function requiresLogin(req, res, next) {
+    if (req.session && req.session.userId) {
+        return next();
+    } else {
+        req.flash('msg', 'Please login first');
+        
+        res.redirect('/login');
+    }
+}
 
 // main page
 server.get('/', (req, res) => {
     res.render('index');
 });
 
-// middleware that required a login
-function requiresLogin(req, res, next) {
-    if (req.session && req.session.userId) {
-        return next();
-    } else {
-        res.redirect('/login');
-    }
-}
-
 // New user registration
 server.get('/newuser', (req, res) => {
+    res.locals.messages = req.flash();
     res.render('newUser', {
         userName: req.session.userName,
         title: 'New User'
@@ -94,6 +107,7 @@ server.post('/newuser', function (req, res) {
 
 // Login page
 server.get('/login', (req, res) => {
+    res.locals.messages = req.flash();
     res.render('login', {
         userName: req.session.userName,
         title: 'User Login'
@@ -121,12 +135,12 @@ server.get('/logout', (req, res, next) => {
 
 server.get('/profile', requiresLogin, (req, res) => {
     res.send('profile page');
-        });
+});
 
-        server.use('/api', apiRouter);
+server.use('/api', apiRouter);
 
-        server.use(express.static('public'));
+server.use(express.static('public'));
 
-        server.listen(config.port, config.host, () => {
-            console.info('Express listening on port', config.port);
-        });
+server.listen(config.port, config.host, () => {
+    console.info('Express listening on port', config.port);
+});
