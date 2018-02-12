@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 var Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-    name: {
+    userName: {
         type: String,
         maxlength: 100,
         required: true
@@ -47,7 +47,8 @@ UserSchema.pre('save', function (next) {
         next();
     });
 });
-//authenticate input against database
+// Authenticate input against database
+// Do not declare statics using ES6 arrow functions (=>)
 UserSchema.statics.authenticate = function (email, password, callback) {
     User.findOne({
             email: email
@@ -56,19 +57,19 @@ UserSchema.statics.authenticate = function (email, password, callback) {
             if (err) {
                 return callback(err);
             } else if (!user) {
-                var err401 = new Error('User not found.');
-                err.status = 401;
-                return callback(err401);
+                return callback('wrong password or username');
             }
+            
             bcrypt.compare(password, user.password, function (err, result) {
                 if (result === true) {
                     return callback(null, user);
                 } else {
-                    return callback();
+                    return callback('wrong password or username');
                 }
             });
         });
 };
+
 
 const TripSchema = new Schema({
     name: String,
@@ -124,10 +125,10 @@ const Message = mongoose.model('Message', MessageSchema);
 
 
 
-export {
-    Kitten,
-    User,
-    Trip,
-    Idea,
-    Message
+export default{
+    Kitten: Kitten,
+    User: User,
+    Trip: Trip,
+    Idea: Idea,
+    Message: Message
 };

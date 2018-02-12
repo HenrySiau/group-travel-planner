@@ -1,5 +1,5 @@
 import express from 'express';
-import User from '../models/models';
+import models from '../models/models';
 import mid from '../helper';
 
 const router = express.Router();
@@ -16,6 +16,7 @@ const router = express.Router();
 //   }
 
 router.get('/', (req, res) => {
+    res.locals.messages = req.flash();
     res.render('index');
 });
 
@@ -30,21 +31,21 @@ router.get('/newuser', (req, res) => {
 router.post('/newuser', function (req, res) {
     if (!req.body) return res.sendStatus(400);
     if (req.body.email &&
-        req.body.username &&
+        req.body.userName &&
         req.body.password &&
         req.body.passwordConf) {
         var userData = {
             email: req.body.email,
-            username: req.body.username,
+            userName: req.body.userName,
             password: req.body.password,
             passwordConf: req.body.passwordConf,
         };
         //use schema.create to insert data into the db
-        User.create(userData, function (err) {
+        models.User.create(userData, function (err) {
             if (err) {
                 // TODO add a flash to show warnning at the web page
                 console.error('Can not create User name: ' + req.body.username);
-                res.send('userName: ' + req.body.userName);
+                res.send(err);
             } else {
                 return res.send('added user');
             }
@@ -66,14 +67,28 @@ router.get('/login', (req, res) => {
     });
 });
 router.post('/login', function (req, res) {
-    if (!req.body) return res.sendStatus(400);
-    req.body.userName = 'Henry';
-    res.redirect('/');
+    if (req.body.email && req.body.password){
+        models.User.authenticate(req.body.email, req.body.password, function (err, user) {
+            if (err || !user) {
+              console.error('err:' + err);
+              req.flash('msg', 'User name and password does not match');
+              return res.redirect('/login');
+            } else {
+              req.session.userId = user._id;
+              req.session.userName = user.userName;
+              return res.redirect('/profile');
+            }
+    });
+}
 });
 
 router.get('/profile', mid.requiresLogin,(req, res) => {
 
-    res.send('profile page');
+    res.locals.messages = req.flash();
+    res.render('profile', {
+        userName: req.session.userName,
+        title: 'Profile'
+    });
 });
 
 // logout page
@@ -88,6 +103,11 @@ router.get('/logout', (req, res, next) => {
             }
         });
     }
+});
+
+// test
+router.get('/test', (req, res) => {
+    res.send(typeof(mid) + '----' + typeof(models.User));
 });
 
 export default router;
