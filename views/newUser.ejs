@@ -3,6 +3,7 @@
 
           <div class="d-flex justify-content-center ">
               <form action="/newuser" method="post" class="form-group">
+                <input type="hidden" name="_csrf" value="<%= csrfToken%>">
                   <p class="col-form-label">User Name</p>
                   <!-- <input name="csrf_token" type=hidden value="{{ session.get('csrf_token') }}"> -->
                   <input type="text" class="form-control" name="userName">

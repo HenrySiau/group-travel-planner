@@ -59,7 +59,7 @@ UserSchema.statics.authenticate = function (email, password, callback) {
             } else if (!user) {
                 return callback('wrong password or username');
             }
-            
+
             bcrypt.compare(password, user.password, function (err, result) {
                 if (result === true) {
                     return callback(null, user);
@@ -125,7 +125,7 @@ const Message = mongoose.model('Message', MessageSchema);
 
 
 
-export default{
+export default {
     Kitten: Kitten,
     User: User,
     Trip: Trip,

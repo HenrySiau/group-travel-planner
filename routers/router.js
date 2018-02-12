@@ -1,19 +1,11 @@
 import express from 'express';
 import models from '../models/models';
 import mid from '../helper';
+import csrf from 'csurf';
+var csrfProtection = csrf({ cookie: true });
 
 const router = express.Router();
 
-// // middleware that required a login
-// function requiresLogin(req, res, next) {
-//     if (req.session && req.session.userId) {
-//       return next();
-//     } else {
-//       req.flash('msg', 'Please login first');
-  
-//       res.redirect('/login');
-//     }
-//   }
 
 router.get('/', (req, res) => {
     res.locals.messages = req.flash();
@@ -21,14 +13,15 @@ router.get('/', (req, res) => {
 });
 
 // New user registration
-router.get('/newuser', (req, res) => {
+router.get('/newuser', csrfProtection, (req, res) => {
     res.locals.messages = req.flash();
     res.render('newUser', {
         userName: req.session.userName,
-        title: 'New User'
+        title: 'New User',
+        csrfToken: req.csrfToken()
     });
 });
-router.post('/newuser', function (req, res) {
+router.post('/newuser', csrfProtection, function (req, res) {
     if (!req.body) return res.sendStatus(400);
     if (req.body.email &&
         req.body.userName &&
@@ -59,31 +52,31 @@ router.post('/newuser', function (req, res) {
 });
 
 // Login page
-router.get('/login', (req, res) => {
+router.get('/login', csrfProtection, (req, res) => {
     res.locals.messages = req.flash();
     res.render('login', {
         userName: req.session.userName,
-        title: 'User Login'
+        title: 'User Login',
+        csrfToken: req.csrfToken()
     });
 });
-router.post('/login', function (req, res) {
-    if (req.body.email && req.body.password){
+router.post('/login', csrfProtection, function (req, res) {
+    if (req.body.email && req.body.password) {
         models.User.authenticate(req.body.email, req.body.password, function (err, user) {
             if (err || !user) {
-              console.error('err:' + err);
-              req.flash('msg', 'User name and password does not match');
-              return res.redirect('/login');
+                console.error('err:' + err);
+                req.flash('msg', 'User name and password does not match');
+                return res.redirect('/login');
             } else {
-              req.session.userId = user._id;
-              req.session.userName = user.userName;
-              return res.redirect('/profile');
+                req.session.userId = user._id;
+                req.session.userName = user.userName;
+                return res.redirect('/profile');
             }
-    });
-}
+        });
+    }
 });
 
-router.get('/profile', mid.requiresLogin,(req, res) => {
-
+router.get('/profile', mid.requiresLogin, (req, res) => {
     res.locals.messages = req.flash();
     res.render('profile', {
         userName: req.session.userName,
@@ -107,7 +100,7 @@ router.get('/logout', (req, res, next) => {
 
 // test
 router.get('/test', (req, res) => {
-    res.send(typeof(mid) + '----' + typeof(models.User));
+    res.send(typeof (mid) + '----' + typeof (models.User));
 });
 
 export default router;
