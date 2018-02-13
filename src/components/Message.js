@@ -4,8 +4,12 @@ import React from 'react';
 const Message = ({ chat, userName }) => (
     <li className={`chat ${userName === chat.userName ? "right" : "left"}`}>
         {userName !== chat.userName
-            && <img src={chat.img} alt={`${chat.userName}'s profile pic`} />
+            && <React.Fragment>
+                <img src={chat.img} alt={`${chat.userName}'s profile pic`} />
+                <p className='userName'>{chat.userName}</p>
+            </React.Fragment>
         }
+
         {chat.content}
     </li>
 );
