@@ -83,7 +83,7 @@ class Chatroom extends React.Component {
                 <ul className="chats" ref="chats">
                     {
                         chats.map((chat) =>
-                            <Message chat={chat} user={userName} />
+                            <Message chat={chat} userName={userName} />
                         )
                     }
                 </ul>
