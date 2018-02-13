@@ -35,7 +35,8 @@
         "mongoose": "^5.0.3",
         "prop-types": "^15.6.0",
         "react": "^16.2.0",
-        "react-dom": "^16.2.0"
+        "react-dom": "^16.2.0",
+        "style-loader": "^0.20.1"
     },
     "devDependencies": {
         "babel-cli": "^6.26.0",
@@ -44,6 +45,7 @@
         "babel-preset-env": "^1.6.1",
         "babel-preset-react": "^6.24.1",
         "babel-preset-stage-2": "^6.24.1",
+        "css-loader": "^0.28.9",
         "eslint": "^4.17.0",
         "eslint-plugin-react": "^7.6.1",
         "nodemon": "^1.14.12",

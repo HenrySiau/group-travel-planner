@@ -12,7 +12,18 @@ module.exports = {
             {
                 test: /\.js$/,
                 loader: 'babel-loader'
-            }
+            },
+            {
+                test: /\.css$/,
+                use: [ 'style-loader', 'css-loader' ]
+              }
         ]
+        
+    },
+    resolve: {
+        extensions: ['', '.js', '.jsx', '.css'],
+        modulesDirectories: [
+          'node_modules'
+        ]        
     }
 };
