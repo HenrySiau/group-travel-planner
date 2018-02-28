@@ -21,10 +21,10 @@ p {
 .chatroom {
   width: 360px;
   height: 600px;
-  background-color: rgba(0,0,0, .7);
+  background-color: rgb(209, 209, 209);
   border-radius: 5px;
   overflow: hidden;
-  box-shadow: 0 0 8px 0 rgba(0,0,0, 0.3);
+  box-shadow: 0 0 8px 0 rgba(151, 151, 151, 0.3);
 }
 
 .chatroom h3 {
@@ -51,15 +51,18 @@ p {
   background: rgba(255, 255, 255, 0.8);
   position: relative;
   font-size: 14px;
-  border-radius: 10px;
+  border-radius: 7px;
   list-style: none;
   max-width: 200px;
 }
 
 .chatroom .chats .chat .userName {
-  font-size: 14px;
-  margin:0 0 0 5px;
+  font-size: 13px;
+  position: absolute;
   left: 2px;
+  top: -47px;
+  color:rgb(145, 145, 145);
+  font-weight: normal; 
 }
 
 .chatroom .chats .chat img {
@@ -67,7 +70,7 @@ p {
   height: 30px;
   border-radius: 10%;
   position: absolute;
-  top: -10px;
+  top: -20px;
   left: -33px;
 }
 .chatroom .chats .chat.left {
@@ -134,13 +137,13 @@ p {
 	content: '';
 	position: absolute;
 	left: 0;
-	top: 28px;
+	top: 18px;
 	width: 0;
 	height: 0;
-	border: 8px solid transparent;
+	border: 6px solid transparent;
 	border-right-color: rgba(255, 255, 255, 0.8);
 	border-left: 0;
 	border-top: 0;
 	margin-top: -4px;
-	margin-left: -8px;
+	margin-left: -6px;
 }

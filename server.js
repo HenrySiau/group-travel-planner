@@ -13,6 +13,8 @@ const server = express();
 server.use(bodyParser.urlencoded({
     extended: false
 }));
+
+// Flash message setting
 server.set('trust proxy', 1); // trust first proxy
 server.use(cookieParser('cp-gtplanner-secret'));
 server.use(session({
@@ -25,6 +27,7 @@ server.use(session({
 }));
 server.use(flash());
 
+// Database Connection config
 const mongooseOptions = {
     autoIndex: false, // Don't build indexes
     reconnectTries: Number.MAX_VALUE, // Never stop trying to reconnect
@@ -50,6 +53,8 @@ db.once('open', function () {
 });
 
 server.set('view engine', 'ejs');
+
+// Register Routers
 server.use('/api', apiRouter);
 server.use('/', router);
 server.use(express.static('public'));

@@ -75,7 +75,8 @@ class Chatroom extends React.Component {
 
     render() {
         const userName = "Kevin Hsu";
-        const { chats } = this.state;
+        const chats = this.state.chats;
+        // TODO: show create time if the two messages are 5 minutes away
 
         return (
             <div className="chatroom">
