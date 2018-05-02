@@ -1,11 +1,12 @@
-var User = require('../../models').User;
+var {User} = require('../../models');
 
 exports.setUser = (req, res) => {
     return User
         .create({
-            name: 'Henry'
+            userName: 'Henry',
+            email: 'henry@henry.com'
         })
-        .then(user => { res.send(user.name)})
+        .then(user => { res.send(user.userName)})
         .catch(error => { res.send(error)});
     
 }

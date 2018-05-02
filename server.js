@@ -1,24 +1,10 @@
-var config = require( './config');
+var config = require('./config');
 var express = require('express');
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var apiRouter = require('./api/routers').apiRouter;
 var cors = require('cors');
-// var path = require('path');
-// const Sequelize = require('sequelize');
-
-// const sequelize = new Sequelize('gtp1', 'postgres', '', {
-//     host: 'localhost',
-//     dialect: 'postgres',
-//     operatorsAliases: false,
-
-//     pool: {
-//       max: 5,
-//       min: 0,
-//       acquire: 30000,
-//       idle: 10000
-//     },
-//   });
+var models = require('./models');
 
 const server = express();
 
@@ -37,7 +23,9 @@ server.use(morgan('dev'));
 
 server.use('/api', apiRouter);
 
-
-server.listen(config.port, config.host, () => {
-    console.info('Express listening on port', config.port);
-});
+models.sequelize.sync({force: true}).then(() => {
+// models.sequelize.sync().then(() => {
+    server.listen(config.port, config.host, () => {
+        console.info('Express listening on port', config.port);
+    });
+})
