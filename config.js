@@ -7,7 +7,7 @@ module.exports = {
         console.info(message);
         console.info('**********');
     },
-    port: env.PORT || 3030,
+    port: env.PORT || 8080,
     host: env.HOST || '0.0.0.0',
     get serverUrl() {
         return `http://${this.host}:${this.port}`;

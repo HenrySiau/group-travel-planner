@@ -23,8 +23,8 @@ server.use(morgan('dev'));
 
 server.use('/api', apiRouter);
 
-models.sequelize.sync({force: true}).then(() => {
-// models.sequelize.sync().then(() => {
+// models.sequelize.sync({force: true}).then(() => {
+models.sequelize.sync().then(() => {
     server.listen(config.port, config.host, () => {
         console.info('Express listening on port', config.port);
     });
