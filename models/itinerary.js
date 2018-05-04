@@ -1,6 +1,12 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
     var Itinerary = sequelize.define('Itinerary', {
+        id: {
+            type: DataTypes.UUID,
+            primaryKey: true,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false
+        },
         description: {
             type: DataTypes.STRING
         }
