@@ -2,6 +2,7 @@ var { User, Trip } = require('../../models');
 var superSecret = require('../../config').superSecret;
 var jwt = require('jsonwebtoken');
 var config = require('../../config');
+var Sequelize = require('sequelize');
 
 
 strip = (str) => {
@@ -20,14 +21,17 @@ exports.setUser = (req, res) => {
 }
 
 exports.getUsers = async (req, res) => {
-    User.findAll().then(users => {
-        return (users);
+    // User.findAll().then(users => {
+    //     return (users);
+    // })
+    //     .then((users) => {
+    //         console.log('second .then: ' + users);
+    //         return res.json(users);
+    //     })
+    //     .catch(error => { res.send(error) });
+    Trip.findAll({ include: [{ model: User, as: 'owner' }] }).then(trips => {
+        return res.json(trips);
     })
-        .then((users) => {
-            console.log('second .then: ' + users);
-            return res.json(users);
-        })
-        .catch(error => { res.send(error) });
 
 }
 
@@ -50,14 +54,14 @@ exports.register = (req, res) => {
                 password: strip(req.body.password),
                 phoneNumber: req.body.phoneNumber && strip(req.body.phoneNumber),
             };
-            User.create().then(newUser => {
+            User.create(userData).then(newUser => {
                 const payload = {
-                    userId: newUser._id,
+                    userId: newUser.id,
                     // iat is short for is available till
                     iat: Date.now() + config.JWTDurationMS
                 };
                 const token = jwt.sign(payload, superSecret);
-                Trip.findOne({ invitationCode: invitationCode }).then(trip => {
+                Trip.findOne({ where: { invitationCode: invitationCode } }).then(trip => {
                     if (trip) {
                         trip.update({
                             members: trip.members.push(newUser)
@@ -67,14 +71,14 @@ exports.register = (req, res) => {
                                 message: 'new user created and joined a trip',
                                 token: token,
                                 userInfo: {
-                                    userId: newUser._id,
+                                    userId: newUser.id,
                                     userName: newUser.userName,
                                     email: newUser.email,
                                     phoneNumber: newUser.phoneNumber,
                                     profilePicture: newUser.profilePicture || '',
                                 },
                                 tripInfo: {
-                                    tripId: updatedTrip._id,
+                                    tripId: updatedTrip.id,
                                     title: updatedTrip.title,
                                     description: updatedTrip.description,
                                     owner: updatedTrip.owner,
@@ -97,14 +101,14 @@ exports.register = (req, res) => {
                             message: 'new user created and joined a trip',
                             token: token,
                             userInfo: {
-                                userId: newUser._id,
+                                userId: newUser.id,
                                 userName: newUser.userName,
                                 email: newUser.email,
                                 phoneNumber: newUser.phoneNumber,
                                 profilePicture: newUser.profilePicture || '',
                             },
                             tripInfo: {
-                                tripId: updatedTrip._id,
+                                tripId: updatedTrip.id,
                                 title: updatedTrip.title,
                                 description: updatedTrip.description,
                                 owner: updatedTrip.owner,
@@ -129,7 +133,7 @@ exports.register = (req, res) => {
                     message: 'something went wrong',
                 });
             })
-            Trip.findOne({ invitationCode: invitationCode }).
+            Trip.findOne({ where: { invitationCode: invitationCode } }).
                 exec((err, trip) => {
                     if (err) {
                         console.err(err);
@@ -141,7 +145,7 @@ exports.register = (req, res) => {
                             userName: strip(req.body.userName),
                             password: strip(req.body.password),
                             phoneNumber: req.body.phoneNumber && strip(req.body.phoneNumber),
-                            trips: [trip._id],
+                            trips: [trip.id],
                         };
                         User.create(userData, function (err, newUser) {
                             if (err) {
@@ -149,7 +153,7 @@ exports.register = (req, res) => {
                             }
                             if (newUser) {
                                 console.log('new user had created: ' + newUser.userName);
-                                trip.members.push(newUser._id);
+                                trip.members.push(newUser.id);
                                 trip.save((err, updatedTrip) => {
                                     if (err) {
                                         console.err(err);
@@ -157,7 +161,7 @@ exports.register = (req, res) => {
                                     if (updatedTrip) {
                                         console.log(`trip: ${updatedTrip.title}, had been updated`);
                                         const payload = {
-                                            userId: newUser._id,
+                                            userId: newUser.id,
                                             // iat is short for is available till
                                             iat: Date.now() + config.JWTDurationMS
                                         };
@@ -167,7 +171,7 @@ exports.register = (req, res) => {
                                             message: 'new user created and joined a trip',
                                             token: token,
                                             userInfo: {
-                                                userId: newUser._id,
+                                                userId: newUser.id,
                                                 userName: newUser.userName,
                                                 email: newUser.email,
                                                 phoneNumber: newUser.phoneNumber,
@@ -175,7 +179,7 @@ exports.register = (req, res) => {
                                                 trips: newUser.trips,
                                             },
                                             tripInfo: {
-                                                tripId: updatedTrip._id,
+                                                tripId: updatedTrip.id,
                                                 title: updatedTrip.title,
                                                 description: updatedTrip.description,
                                                 owner: updatedTrip.owner,
@@ -203,7 +207,7 @@ exports.register = (req, res) => {
             User.create(userData)
                 .then(newUser => {
                     const payload = {
-                        userId: newUser._id,
+                        userId: newUser.id,
                         // iat is short for is available till
                         iat: Date.now() + config.JWTDurationMS
                     };
@@ -241,7 +245,7 @@ exports.register = (req, res) => {
 
 exports.validateEmailExist = function (req, res) {
     if (req.body.email) {
-        User.findOne({ email: req.body.email }).then(user => {
+        User.findOne({ where: { email: req.body.email } }).then(user => {
             if (user) {
                 return res.status(200).json({
                     success: true,
@@ -266,6 +270,197 @@ exports.validateEmailExist = function (req, res) {
         return res.status(200).json({
             success: false,
             message: 'Did not get the email'
+        });
+    }
+}
+
+exports.loginWithToken = (req, res) => {
+    if (req.body.token) {
+        jwt.verify(req.body.token, superSecret, (err, decoded) => {
+            if (err) {
+                return res.json({
+                    success: false,
+                    message: 'Failed to authenticate token.'
+                });
+            } else {
+                console.log('token: ' + decoded);
+                // if everything is good, save to request for use in other routes
+                if (!(decoded.iat && decoded.userId)) {
+                    console.log('decoded: ' + decoded.iat + decoded.userId);
+                    return res.status(200).send({
+                        success: false,
+                        message: 'Invalid token.'
+                    });
+                    //iat is short for is available till
+                } else if (decoded.iat < Date.now()) {
+                    return res.status(200).send({
+                        success: false,
+                        message: 'Token expired.'
+                    });
+                } else {
+                    // fetch userInfo from database
+                    User.findById(decoded.userId).then(
+                        (user) => {
+                            if (user) {
+                                // update token
+                                const payload = {
+                                    userId: user.id,
+                                    // iat is short for is available till
+                                    iat: Date.now() + config.JWTDurationMS
+                                };
+                                const token = jwt.sign(payload, superSecret);
+                                // TODO : get default trip
+
+                                res.status(200).json({
+                                    success: true,
+                                    token: token,
+                                    userInfo: {
+                                        userId: user.id,
+                                        userName: user.userName,
+                                        email: user.email,
+                                        phoneNumber: user.phoneNumber,
+                                        profilePicture: user.profilePicture,
+                                        facebookProfilePictureURL: user.facebookProfilePictureURL
+                                    }
+                                });
+                            }
+                            else {
+                                res.status(200).json({
+                                    success: false,
+                                    message: 'Invalid token'
+                                });
+                            }
+                        }
+                    ).catch(error => {
+                        console.error(error);
+                        res.status(200).json({
+                            success: false,
+                            message: 'can not find this User in database'
+                        });
+                    })
+                }
+            }
+        });
+    } else {
+        res.status(200).json({
+            success: false,
+            message: 'Invalid token'
+        });
+    }
+
+}
+
+//   https://localhost:3000/trip/join?code=LSDgXc58
+// http://localhost:8080/trip/join?code=LSDgXc58
+// TODO required server side verification 
+exports.LoginWithFacebook = async (req, res) => {
+    if (req.body.email && req.body.userName && req.body.accessToken) {
+        const invitationCode = req.body.invitationCode;
+        let user;
+        let trip;
+        let userInfo;
+        let tripInfo;
+        let token;
+        let isNewUser = false;
+
+        if (invitationCode) {
+        // if (true) {
+            console.log('with invitationCode: ' + invitationCode);
+            await Promise.all([
+                User.findOne({ where: { email: req.body.email } }),
+                Trip.findOne({ where: { invitationCode: invitationCode }, include: [{ model: User, as: 'members' }] })
+            ]).then(results => {
+                console.log('results: ' + results);
+                user = results[0];
+                trip = results[1];
+            }).catch(error => {
+                console.error(error);
+            })
+        } else {
+            user = await User.findOne({ where: { email: req.body.email } }).catch(error => {
+                console.error(error);
+            });
+        }
+        console.log('after origin fetching')
+        console.log('user: ' + user);
+        console.log('trip: ' + trip);
+        if (!user) {
+            isNewUser = true;
+            // create new user
+            console.log('create new user');
+            const userData = {
+                email: req.body.email,
+                userName: req.body.userName,
+                isSocialAuth: true,
+                facebookProfilePictureURL: req.body.facebookProfilePictureURL,
+            };
+            await User.create(userData).then(newUser => {
+                user = newUser;
+            }).catch(error => {
+                console.error(error);
+            })
+        }
+        const payload = {
+            userId: user.id,
+            // iat is short for is available till
+            iat: Date.now() + config.JWTDurationMS
+        };
+        token = jwt.sign(payload, superSecret);
+        userInfo = {
+            userId: user.id,
+            userName: user.userName,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            profilePicture: user.profilePicture || '',
+        };
+
+        // get trip info
+        if (trip) {
+            // add user to trip member
+            console.log('trip.addMember');
+            trip.addMember(user);
+            tripInfo = {
+                tripId: trip.id,
+                title: trip.title,
+                description: trip.description,
+                owner: trip.owner,
+                members: trip.members,
+                startDate: trip.startDate,
+                endDate: trip.endDate,
+                invitationCode: trip.invitationCode
+            }
+        } else if (!isNewUser) { // if not a new user
+            // fetch default trip
+            console.log('get default trip');
+            await Trip.findOne({ where: { endDate: { [Sequelize.Op.gte]: Date.now() } }, order: ['endDate', 'DESC'], limit: 1 }).then(defaultTrip => {
+                if (defaultTrip) {
+                    tripInfo = {
+                        tripId: defaultTrip.id,
+                        title: defaultTrip.title,
+                        description: defaultTrip.description,
+                        owner: defaultTrip.owner,
+                        members: defaultTrip.members,
+                        startDate: defaultTrip.startDate,
+                        endDate: defaultTrip.endDate,
+                        invitationCode: defaultTrip.invitationCode
+                    }
+                }
+            }).catch(error => {
+                console.error(error);
+            });
+        }
+        // return
+        return res.status(200).json({
+            success: true,
+            token: token,
+            userInfo: userInfo,
+            tripInfo: tripInfo,
+        })
+
+    } else {
+        res.status(401).json({
+            success: false,
+            message: 'lake of information'
         });
     }
 }
