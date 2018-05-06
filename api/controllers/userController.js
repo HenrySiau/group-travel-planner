@@ -91,16 +91,109 @@ exports.register = async (req, res) => {
             userInfo: userInfo,
             tripInfo: tripInfo
         });
-
     } else {   // user registration form missing information
         return res.status(400).json({
             success: false,
             message: 'please complete the form'
         });
     }
-
 }
 
+exports.signIn = async (req, res) => {
+    if (req.body.email && req.body.password) {
+        console.log('LoginWithPassword');
+        console.log(req.body);
+        const invitationCode = req.body.invitationCode;
+        let user;
+        let trip;
+        let userInfo;
+        let tripInfo;
+        let token;
+        const userData = {
+            email: strip(req.body.email),
+            password: strip(req.body.password),
+        };
+        user = await User.findOne({ where: userData }).catch(error => {
+            console.error(error);
+        });
+        if (user) {
+            const payload = {
+                userId: user.id,
+                // iat is short for is available till
+                iat: Date.now() + config.JWTDurationMS
+            };
+            token = jwt.sign(payload, superSecret);
+            userInfo = {
+                userId: user.id,
+                userName: user.userName,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                profilePicture: user.profilePicture || '',
+            };
+        } else {
+            res.status(401).json({
+                success: false,
+                message: 'Invalid username or password'
+            });
+        }
+        if (invitationCode) {
+            // if (true) {
+            console.log('with invitationCode: ' + invitationCode);
+            trip = await Trip.findOne({ where: { invitationCode: invitationCode }, include: [{ model: User, as: 'members' }] })
+                .catch(error => {
+                    console.error(error);
+                })
+        }
+        if (trip) {
+            trip.addMember(user);
+            tripInfo = {
+                tripId: trip.id,
+                title: trip.title,
+                description: trip.description,
+                owner: trip.owner,
+                members: trip.members,
+                startDate: trip.startDate,
+                endDate: trip.endDate,
+                invitationCode: trip.invitationCode
+            }
+        } else {
+            // fetch default trip
+            console.log('get default trip');
+            await user.getTrips({
+                where: { endDate: { [Sequelize.Op.gte]: Date.now() } },
+                order: ['endDate'],
+                limit: 1,
+                include: [{ model: User, as: 'members', attributes: ['id', 'userName', 'email'] }]
+            })
+                .then(results => {
+                    if (results) {
+                        const defaultTrip = results[0];
+                        if (defaultTrip) {
+                            tripInfo = {
+                                tripId: defaultTrip.id,
+                                title: defaultTrip.title,
+                                description: defaultTrip.description,
+                                owner: defaultTrip.owner,
+                                members: defaultTrip.members,
+                                startDate: defaultTrip.startDate,
+                                endDate: defaultTrip.endDate,
+                                invitationCode: defaultTrip.invitationCode
+                            }
+                        }
+                    }
+
+                })
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'new user created and joined a trip',
+            token: token,
+            userInfo: userInfo,
+            tripInfo: tripInfo
+        });
+    }
+}
 
 //   https://localhost:3000/trip/join?code=LSDgXc58
 exports.LoginWithFacebook = async (req, res) => {
@@ -321,3 +414,4 @@ exports.loginWithToken = (req, res) => {
     }
 
 }
+
