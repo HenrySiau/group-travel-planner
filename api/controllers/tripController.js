@@ -82,7 +82,12 @@ exports.createTrip = async (req, res) => {
             };
             console.log('user email: ' + user.email);
             Trip.create(tripData).then(async (newTrip) => {
-                newTrip.addMember(user);
+                await newTrip.addMember(user);
+                // if(newTrip.hasMember(user)){
+                //     console.log('newTrip has user');
+                // }else{
+                //     console.log('newTrip does not has user');
+                // }
                 newTrip.addAdmin(user);
                 console.log('after add member');
                 return res.status(200).json({
@@ -107,3 +112,82 @@ exports.createTrip = async (req, res) => {
     }
 }
 
+exports.verifyInvitationCode = async (req, res) => {
+    console.log(req.body);
+    let tripInfo;
+    let userInfo;
+    if (req.body.invitationCode) {
+        await Trip.findOne({ where: { invitationCode: req.body.invitationCode } })
+            .then(trip => {
+                if (trip) {
+                    console.log('found the trip title: ' + trip.title);
+                    tripInfo = {
+                        tripId: trip.id,
+                        title: trip.title,
+                        invitationCode: trip.invitationCode
+                    }
+                } else {
+                    return res.status(200).json({
+                        success: false,
+                        message: 'Invalid invitation code'
+                    });
+                }
+            }).catch(error => {
+                console.error(error);
+            })
+        if (req.body.token) {
+            jwt.verify(req.body.token, superSecret, function (err, decoded) {
+                if (err) {
+                    console.err(err);
+                }
+                if (decoded.iat && decoded.userId) {
+                    console.log('decoded: ' + decoded);
+                    if (decoded.iat > Date.now()) {
+                        User.findById(decoded.userId).then(user => {
+                            if (user) {
+                                console.log('found user: ' + user.userName);
+                                userInfo = {
+                                    userId: user.id,
+                                    userName: user.userName,
+                                    email: user.email,
+                                }
+                                res.status(200).json({
+                                    success: true,
+                                    tripInfo: tripInfo,
+                                    userInfo: {
+                                        userId: user._id,
+                                        userName: user.userName,
+                                        email: user.email,
+                                    }
+                                });
+                            } else { // no user found accord token 
+                                console.log('no user found');
+                                res.status(200).json({
+                                    success: true,
+                                    tripInfo: tripInfo,
+                                });
+                            }
+                        })
+                    } else { // token expired
+                        console.log('token expired: ' + decoded.iat);
+                        res.status(200).json({
+                            success: true,
+                            tripInfo: tripInfo,
+                        });
+                    }
+                }
+            })
+        } else {  // no token
+            console.log('no token');
+            res.status(200).json({
+                success: true,
+                tripInfo: tripInfo,
+            });
+        }
+    } else {
+        return res.status(200).json({
+            success: false,
+            message: 'No invitation code received'
+        });
+    }
+}
