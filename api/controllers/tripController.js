@@ -191,3 +191,61 @@ exports.verifyInvitationCode = async (req, res) => {
         });
     }
 }
+exports.addMemberToTrip = async (req, res) => {
+    console.log('add member to trip');
+    if (req.body.invitationCode) {
+        let trip;
+        let user;
+        await Promise.all([
+            User.findById(req.decodedJWT.userId),
+            Trip.findOne({ where: { invitationCode: req.body.invitationCode }, include: [{ model: User, as: 'members' }] })
+        ]).then(results => {
+            console.log('results: ' + results);
+            user = results[0];
+            trip = results[1];
+        }).catch(error => {
+            console.error(error);
+        })
+        if (trip && user) {
+            trip.addMember(user);
+            // update token
+            const payload = {
+                userId: user.id,
+                // iat is short for is available till
+                iat: Date.now() + config.JWTDurationMS
+            };
+            const token = jwt.sign(payload, superSecret);
+            return res.status(200).json({
+                success: true,
+                token: token,
+                tripInfo: {
+                    tripId: trip.id,
+                    title: trip.title,
+                    description: trip.description,
+                    startDate: trip.startDate,
+                    endDate: trip.endDate,
+                    invitationCode: trip.invitationCode,
+                    members: trip.members,
+                },
+                userInfo: {
+                    userId: user.id,
+                    userName: user.userName,
+                    email: user.email,
+                    phoneNumber: user.phoneNumber,
+                    profilePicture: user.profilePicture,
+                    facebookProfilePictureURL: user.facebookProfilePictureURL
+                },
+            });
+        } else {
+            return res.status(200).json({
+                success: false,
+                message: 'no invitation code received'
+            });
+        }
+    } else {
+        return res.status(200).json({
+            success: false,
+            message: 'no invitation code received'
+        });
+    }
+}
