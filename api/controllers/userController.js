@@ -275,22 +275,30 @@ exports.LoginWithFacebook = async (req, res) => {
         } else if (!isNewUser) { // if not a new user
             // fetch default trip
             console.log('get default trip');
-            await Trip.findOne({ where: { endDate: { [Sequelize.Op.gte]: Date.now() } }, order: ['endDate', 'DESC'], limit: 1 }).then(defaultTrip => {
-                if (defaultTrip) {
-                    tripInfo = {
-                        tripId: defaultTrip.id,
-                        title: defaultTrip.title,
-                        description: defaultTrip.description,
-                        owner: defaultTrip.owner,
-                        members: defaultTrip.members,
-                        startDate: defaultTrip.startDate,
-                        endDate: defaultTrip.endDate,
-                        invitationCode: defaultTrip.invitationCode
+            await user.getTrips({
+                where: { endDate: { [Sequelize.Op.gte]: Date.now() } },
+                order: ['endDate'],
+                limit: 1,
+                include: [{ model: User, as: 'members', attributes: ['id', 'userName', 'email'] }]
+            })
+                .then(results => {
+                    if (results) {
+                        const defaultTrip = results[0];
+                        if (defaultTrip) {
+                            tripInfo = {
+                                tripId: defaultTrip.id,
+                                title: defaultTrip.title,
+                                description: defaultTrip.description,
+                                owner: defaultTrip.owner,
+                                members: defaultTrip.members,
+                                startDate: defaultTrip.startDate,
+                                endDate: defaultTrip.endDate,
+                                invitationCode: defaultTrip.invitationCode
+                            }
+                        }
                     }
-                }
-            }).catch(error => {
-                console.error(error);
-            });
+
+                })
         }
         // return
         return res.status(200).json({
