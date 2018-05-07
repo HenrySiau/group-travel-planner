@@ -373,8 +373,35 @@ exports.loginWithToken = (req, res) => {
                 } else {
                     // fetch userInfo from database
                     User.findById(decoded.userId).then(
-                        (user) => {
+                        async (user) => {
                             if (user) {
+                                let tripInfo;
+                                // fetch default trip
+                                console.log('get default trip');
+                                await user.getTrips({
+                                    where: { endDate: { [Sequelize.Op.gte]: Date.now() } },
+                                    order: ['endDate'],
+                                    limit: 1,
+                                    include: [{ model: User, as: 'members', attributes: ['id', 'userName', 'email'] }]
+                                })
+                                    .then(results => {
+                                        if (results) {
+                                            const defaultTrip = results[0];
+                                            if (defaultTrip) {
+                                                tripInfo = {
+                                                    tripId: defaultTrip.id,
+                                                    title: defaultTrip.title,
+                                                    description: defaultTrip.description,
+                                                    owner: defaultTrip.owner,
+                                                    members: defaultTrip.members,
+                                                    startDate: defaultTrip.startDate,
+                                                    endDate: defaultTrip.endDate,
+                                                    invitationCode: defaultTrip.invitationCode
+                                                }
+                                            }
+                                        }
+
+                                    })
                                 // update token
                                 const payload = {
                                     userId: user.id,
@@ -382,8 +409,6 @@ exports.loginWithToken = (req, res) => {
                                     iat: Date.now() + config.JWTDurationMS
                                 };
                                 const token = jwt.sign(payload, superSecret);
-                                // TODO : get default trip
-
                                 res.status(200).json({
                                     success: true,
                                     token: token,
@@ -394,7 +419,8 @@ exports.loginWithToken = (req, res) => {
                                         phoneNumber: user.phoneNumber,
                                         profilePicture: user.profilePicture,
                                         facebookProfilePictureURL: user.facebookProfilePictureURL
-                                    }
+                                    },
+                                    tripInfo: tripInfo,
                                 });
                             }
                             else {

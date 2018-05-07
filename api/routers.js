@@ -17,5 +17,6 @@ router.post('/post/login/token', userControllers.loginWithToken);
 router.post('/post/trip/new', loginRequired, tripControllers.createTrip);
 router.post('/post/login/facebook', userControllers.LoginWithFacebook);
 router.post('/post/invitation/code/verify', tripControllers.verifyInvitationCode);
+router.post('/post/signin', userControllers.signIn);
 
 exports.apiRouter = router;
