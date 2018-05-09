@@ -5,6 +5,7 @@ var morgan = require('morgan');
 var apiRouter = require('./api/routers').apiRouter;
 var cors = require('cors');
 var models = require('./models');
+var SocketIo = require('socket.io');
 
 const server = express();
 
@@ -23,9 +24,22 @@ server.use(morgan('dev'));
 
 server.use('/api', apiRouter);
 
+// const socketServer = server.listen(process.env.PORT, 'localhost', function (err) {
+//     if (err) {
+//         console.log(err);
+//         return;
+//     }
+//     console.log('server listening on port: %s', process.env.PORT);
+// });
+
+
 // models.sequelize.sync({force: true}).then(() => {
 models.sequelize.sync().then(() => {
-    server.listen(config.port, config.host, () => {
-        console.info('Express listening on port', config.port);
-    });
-})
+
+
+});
+const socketServer = server.listen(config.port, config.host, () => {
+    console.info('Express listening on port', config.port);
+});
+const io = new SocketIo(socketServer, { path: '/api/chat' })
+const socketEvents = require('./socketEvents')(io);

@@ -249,3 +249,33 @@ exports.addMemberToTrip = async (req, res) => {
         });
     }
 }
+
+exports.inviteMembers = function (req, res) {
+    // TODO: add email server
+    if (req.body.invitationCode && req.body.emailList) {
+        const message = req.body.message ? req.body.message.replace(/\n/g, '<br />') : '';
+        let subject = req.body.subject;
+        const link = `<p>Click <a href="https://www.gtplanner.com/trip/join?code=${req.body.invitationCode}">here </a>to join the group</p>`;
+        const mailOptions = {
+            from: 'gtplanner.com@gmail.com', // sender address
+            to: req.body.emailList, // list of receivers
+            subject: subject, // Subject line
+            html: `<p>${message}</p><br />${link}`// body
+        };
+        transporter.sendMail(mailOptions, function (err, info) {
+            if (err)
+                console.log(err)
+            else
+                console.log(info);
+            return res.status(200).json({
+                success: true,
+                numberOfEmails: req.body.emailList.length
+            });
+        });
+    } else {
+        return res.status(200).json({
+            success: false,
+            message: 'no invitation code or email list received'
+        });
+    }
+}
