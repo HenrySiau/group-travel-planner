@@ -5,6 +5,7 @@ var config = require('../../config');
 var config = require('../../config');
 var instanceConfig = require('../../instanceConfig');
 const nodemailer = require('nodemailer');
+const mapMembers = require('../../helper').mapMembers;
 
 var transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -225,7 +226,7 @@ exports.addMemberToTrip = async (req, res) => {
                     startDate: trip.startDate,
                     endDate: trip.endDate,
                     invitationCode: trip.invitationCode,
-                    members: trip.members,
+                    members: mapMembers(trip.members),
                 },
                 userInfo: {
                     userId: user.id,

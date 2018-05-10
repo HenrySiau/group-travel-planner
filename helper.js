@@ -43,3 +43,16 @@ exports.loginRequired = function (req, res, next) {
     }
 
 };
+
+exports.mapMembers = members => {
+    let membersMap = new Map();
+    members.map(member => {
+        membersMap.set(member.id, {
+            userName: member.userName,
+            email: member.email,
+            profilePictureUrl: member.profilePicture ? settings.serverUrl + member.profilePicture : member.facebookProfilePictureURL || '',
+        })
+    });
+    console.log('mapMembers size: ' + membersMap.size);
+    return membersMap;
+}

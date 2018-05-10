@@ -3,11 +3,14 @@ var superSecret = require('../../config').superSecret;
 var jwt = require('jsonwebtoken');
 var config = require('../../config');
 var Sequelize = require('sequelize');
+var settings = require('../../config');
+const mapMembers = require('../../helper').mapMembers;
 
-
-strip = (str) => {
+const strip = (str) => {
     return str.replace(/^\s+|\s+$/g, '');
 }
+
+
 
 exports.setUser = (req, res) => {
     return User
@@ -59,13 +62,14 @@ exports.register = async (req, res) => {
                 })
         }
         if (trip) {
+
             trip.addMember(user);
             tripInfo = {
                 tripId: trip.id,
                 title: trip.title,
                 description: trip.description,
                 owner: trip.owner,
-                members: trip.members,
+                members: mapMembers(trip.members),
                 startDate: trip.startDate,
                 endDate: trip.endDate,
                 invitationCode: trip.invitationCode
@@ -151,7 +155,7 @@ exports.signIn = async (req, res) => {
                 title: trip.title,
                 description: trip.description,
                 owner: trip.owner,
-                members: trip.members,
+                members: mapMembers(trip.members),
                 startDate: trip.startDate,
                 endDate: trip.endDate,
                 invitationCode: trip.invitationCode
@@ -174,7 +178,7 @@ exports.signIn = async (req, res) => {
                                 title: defaultTrip.title,
                                 description: defaultTrip.description,
                                 owner: defaultTrip.owner,
-                                members: defaultTrip.members,
+                                members: mapMembers(defaultTrip.members),
                                 startDate: defaultTrip.startDate,
                                 endDate: defaultTrip.endDate,
                                 invitationCode: defaultTrip.invitationCode
@@ -267,7 +271,7 @@ exports.LoginWithFacebook = async (req, res) => {
                 title: trip.title,
                 description: trip.description,
                 owner: trip.owner,
-                members: trip.members,
+                members: mapMembers(trip.members),
                 startDate: trip.startDate,
                 endDate: trip.endDate,
                 invitationCode: trip.invitationCode
@@ -290,7 +294,7 @@ exports.LoginWithFacebook = async (req, res) => {
                                 title: defaultTrip.title,
                                 description: defaultTrip.description,
                                 owner: defaultTrip.owner,
-                                members: defaultTrip.members,
+                                members: mapMembers(defaultTrip.members),
                                 startDate: defaultTrip.startDate,
                                 endDate: defaultTrip.endDate,
                                 invitationCode: defaultTrip.invitationCode
@@ -393,7 +397,7 @@ exports.loginWithToken = (req, res) => {
                                                     title: defaultTrip.title,
                                                     description: defaultTrip.description,
                                                     owner: defaultTrip.owner,
-                                                    members: defaultTrip.members,
+                                                    members: mapMembers(defaultTrip.members),
                                                     startDate: defaultTrip.startDate,
                                                     endDate: defaultTrip.endDate,
                                                     invitationCode: defaultTrip.invitationCode
