@@ -4,13 +4,10 @@ var jwt = require('jsonwebtoken');
 var config = require('../../config');
 var Sequelize = require('sequelize');
 var settings = require('../../config');
-const mapMembers = require('../../helper').mapMembers;
 
 const strip = (str) => {
     return str.replace(/^\s+|\s+$/g, '');
 }
-
-
 
 exports.setUser = (req, res) => {
     return User
@@ -20,13 +17,18 @@ exports.setUser = (req, res) => {
         })
         .then(user => { res.send(user.userName) })
         .catch(error => { res.send(error) });
-
 }
 
 exports.getUsers = async (req, res) => {
-    Trip.findAll({ include: [{ model: User, as: 'owner' }] }).then(trips => {
-        return res.json(trips);
+    Trip.findAll({
+        include: [{
+            model: User, as: 'owner',
+            attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+        }]
     })
+        .then(trips => {
+            return res.json(trips);
+        })
 }
 
 exports.register = async (req, res) => {
@@ -53,34 +55,6 @@ exports.register = async (req, res) => {
                 message: 'can not create this user'
             });
         });
-        if (invitationCode) {
-            // if (true) {
-            console.log('with invitationCode: ' + invitationCode);
-            trip = await Trip.findOne({ where: { invitationCode: invitationCode }, include: [{ model: User, as: 'members' }] })
-                .catch(error => {
-                    console.error(error);
-                })
-        }
-        if (trip) {
-
-            trip.addMember(user);
-            tripInfo = {
-                tripId: trip.id,
-                title: trip.title,
-                description: trip.description,
-                owner: trip.owner,
-                members: mapMembers(trip.members),
-                startDate: trip.startDate,
-                endDate: trip.endDate,
-                invitationCode: trip.invitationCode
-            }
-        }
-        const payload = {
-            userId: user.id,
-            // iat is short for is available till
-            iat: Date.now() + config.JWTDurationMS
-        };
-        token = jwt.sign(payload, superSecret);
         userInfo = {
             userId: user.id,
             userName: user.userName,
@@ -88,6 +62,40 @@ exports.register = async (req, res) => {
             phoneNumber: user.phoneNumber,
             profilePicture: user.profilePicture || '',
         };
+        if (invitationCode) {
+            // if (true) {
+            console.log('with invitationCode: ' + invitationCode);
+            trip = await Trip.findOne({
+                where: { invitationCode: invitationCode },
+                include: [{
+                    model: User, as: 'members',
+                    attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                }]
+            })
+                .catch(error => {
+                    console.error(error);
+                })
+        }
+        if (trip) {
+            trip.addMember(user);
+            tripInfo = {
+                tripId: trip.id,
+                title: trip.title,
+                description: trip.description,
+                owner: trip.owner,
+                members: trip.members,
+                startDate: trip.startDate,
+                endDate: trip.endDate,
+                invitationCode: trip.invitationCode
+            }
+            res.io.to(trip.id).emit('new member', userInfo);
+        }
+        const payload = {
+            userId: user.id,
+            // iat is short for is available till
+            iat: Date.now() + config.JWTDurationMS
+        };
+        token = jwt.sign(payload, superSecret);
         return res.status(200).json({
             success: true,
             message: 'new user created and joined a trip',
@@ -143,7 +151,13 @@ exports.signIn = async (req, res) => {
         if (invitationCode) {
             // if (true) {
             console.log('with invitationCode: ' + invitationCode);
-            trip = await Trip.findOne({ where: { invitationCode: invitationCode }, include: [{ model: User, as: 'members' }] })
+            trip = await Trip.findOne({
+                where: { invitationCode: invitationCode },
+                include: [{
+                    model: User, as: 'members',
+                    attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                }]
+            })
                 .catch(error => {
                     console.error(error);
                 })
@@ -155,11 +169,12 @@ exports.signIn = async (req, res) => {
                 title: trip.title,
                 description: trip.description,
                 owner: trip.owner,
-                members: mapMembers(trip.members),
+                members: trip.members,
                 startDate: trip.startDate,
                 endDate: trip.endDate,
                 invitationCode: trip.invitationCode
             }
+            res.io.to(trip.id).emit('new member', userInfo);
         } else {
             // fetch default trip
             console.log('get default trip');
@@ -167,7 +182,7 @@ exports.signIn = async (req, res) => {
                 where: { endDate: { [Sequelize.Op.gte]: Date.now() } },
                 order: ['endDate'],
                 limit: 1,
-                include: [{ model: User, as: 'members', attributes: ['id', 'userName', 'email'] }]
+                include: [{ model: User, as: 'members', attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL'] }]
             })
                 .then(results => {
                     if (results) {
@@ -178,7 +193,7 @@ exports.signIn = async (req, res) => {
                                 title: defaultTrip.title,
                                 description: defaultTrip.description,
                                 owner: defaultTrip.owner,
-                                members: mapMembers(defaultTrip.members),
+                                members: defaultTrip.members,
                                 startDate: defaultTrip.startDate,
                                 endDate: defaultTrip.endDate,
                                 invitationCode: defaultTrip.invitationCode
@@ -215,7 +230,13 @@ exports.LoginWithFacebook = async (req, res) => {
             console.log('with invitationCode: ' + invitationCode);
             await Promise.all([
                 User.findOne({ where: { email: req.body.email } }),
-                Trip.findOne({ where: { invitationCode: invitationCode }, include: [{ model: User, as: 'members' }] })
+                Trip.findOne({
+                    where: { invitationCode: invitationCode },
+                    include: [{
+                        model: User, as: 'members',
+                        attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                    }]
+                })
             ]).then(results => {
                 console.log('results: ' + results);
                 user = results[0];
@@ -271,11 +292,12 @@ exports.LoginWithFacebook = async (req, res) => {
                 title: trip.title,
                 description: trip.description,
                 owner: trip.owner,
-                members: mapMembers(trip.members),
+                members: trip.members,
                 startDate: trip.startDate,
                 endDate: trip.endDate,
                 invitationCode: trip.invitationCode
             }
+            res.io.to(trip.id).emit('new member', userInfo);
         } else if (!isNewUser) { // if not a new user
             // fetch default trip
             console.log('get default trip');
@@ -283,7 +305,10 @@ exports.LoginWithFacebook = async (req, res) => {
                 where: { endDate: { [Sequelize.Op.gte]: Date.now() } },
                 order: ['endDate'],
                 limit: 1,
-                include: [{ model: User, as: 'members', attributes: ['id', 'userName', 'email'] }]
+                include: [{
+                    model: User, as: 'members',
+                    attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                }]
             })
                 .then(results => {
                     if (results) {
@@ -294,7 +319,7 @@ exports.LoginWithFacebook = async (req, res) => {
                                 title: defaultTrip.title,
                                 description: defaultTrip.description,
                                 owner: defaultTrip.owner,
-                                members: mapMembers(defaultTrip.members),
+                                members: defaultTrip.members,
                                 startDate: defaultTrip.startDate,
                                 endDate: defaultTrip.endDate,
                                 invitationCode: defaultTrip.invitationCode
@@ -376,6 +401,8 @@ exports.loginWithToken = (req, res) => {
                     });
                 } else {
                     // fetch userInfo from database
+                    // res.io.emit('new message', 'new message from Xiao');
+                    // importedIo.emit('new message', 'new message from importedIo');
                     User.findById(decoded.userId).then(
                         async (user) => {
                             if (user) {
@@ -386,7 +413,10 @@ exports.loginWithToken = (req, res) => {
                                     where: { endDate: { [Sequelize.Op.gte]: Date.now() } },
                                     order: ['endDate'],
                                     limit: 1,
-                                    include: [{ model: User, as: 'members', attributes: ['id', 'userName', 'email'] }]
+                                    include: [{
+                                        model: User, as: 'members',
+                                        attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                                    }]
                                 })
                                     .then(results => {
                                         if (results) {
@@ -397,7 +427,7 @@ exports.loginWithToken = (req, res) => {
                                                     title: defaultTrip.title,
                                                     description: defaultTrip.description,
                                                     owner: defaultTrip.owner,
-                                                    members: mapMembers(defaultTrip.members),
+                                                    members: defaultTrip.members,
                                                     startDate: defaultTrip.startDate,
                                                     endDate: defaultTrip.endDate,
                                                     invitationCode: defaultTrip.invitationCode

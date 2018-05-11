@@ -29,13 +29,14 @@ app.use(morgan('dev'));
 
 app.use('/api', apiRouter);
 
+let counter = 'cccc';
+
 models.sequelize.sync();
 const server = app.listen(config.port, config.host, () => {
     console.info('Express listening on port', config.port);
+    counter = 8;
 });
-const io = new SocketIo(server, { path: '/api/chat' });
+const io = SocketIo(server, { path: '/api/trip' });
 
 const socketEvents = require('./socketEvents')(io);
 const message = 'the message';
-
-

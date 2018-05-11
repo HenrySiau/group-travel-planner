@@ -15,6 +15,7 @@ exports = module.exports = function (io) {
     })
     socket.on('new message', function (msg) {
       io.to(msg.channel).emit('new bc message', 'to : ' + msg.channel + msg.message);
+      // io.to(msg.channel).emit('new member', {id:'1234566lkj', userName:'HenryX'});
     });
 
     socket.on('new channel', function (channel) {

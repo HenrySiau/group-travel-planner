@@ -5,7 +5,6 @@ var config = require('../../config');
 var config = require('../../config');
 var instanceConfig = require('../../instanceConfig');
 const nodemailer = require('nodemailer');
-const mapMembers = require('../../helper').mapMembers;
 
 var transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -199,7 +198,14 @@ exports.addMemberToTrip = async (req, res) => {
         let user;
         await Promise.all([
             User.findById(req.decodedJWT.userId),
-            Trip.findOne({ where: { invitationCode: req.body.invitationCode }, include: [{ model: User, as: 'members' }] })
+            Trip.findOne({
+                where: { invitationCode: req.body.invitationCode },
+                include: [{
+                    model: User, as: 'members',
+                    attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                },
+                ]
+            })
         ]).then(results => {
             console.log('results: ' + results);
             user = results[0];
@@ -216,6 +222,17 @@ exports.addMemberToTrip = async (req, res) => {
                 iat: Date.now() + config.JWTDurationMS
             };
             const token = jwt.sign(payload, superSecret);
+            const userInfo = {
+                userId: user.id,
+                userName: user.userName,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                profilePicture: user.profilePicture,
+                facebookProfilePictureURL: user.facebookProfilePictureURL
+            }
+            console.log('to: ' + trip.id);
+            console.log('io.new member');
+            res.io.to(trip.id).emit('new member', userInfo);
             return res.status(200).json({
                 success: true,
                 token: token,
@@ -226,16 +243,9 @@ exports.addMemberToTrip = async (req, res) => {
                     startDate: trip.startDate,
                     endDate: trip.endDate,
                     invitationCode: trip.invitationCode,
-                    members: mapMembers(trip.members),
+                    members: trip.members,
                 },
-                userInfo: {
-                    userId: user.id,
-                    userName: user.userName,
-                    email: user.email,
-                    phoneNumber: user.phoneNumber,
-                    profilePicture: user.profilePicture,
-                    facebookProfilePictureURL: user.facebookProfilePictureURL
-                },
+                userInfo: userInfo,
             });
         } else {
             return res.status(200).json({
