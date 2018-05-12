@@ -202,7 +202,7 @@ exports.addMemberToTrip = async (req, res) => {
                 where: { invitationCode: req.body.invitationCode },
                 include: [{
                     model: User, as: 'members',
-                    attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                    attributes: [['id', 'userId'], 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
                 },
                 ]
             })
