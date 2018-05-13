@@ -31,6 +31,7 @@ app.use('/api', apiRouter);
 
 let counter = 'cccc';
 
+// models.sequelize.sync({force:true});
 models.sequelize.sync();
 const server = app.listen(config.port, config.host, () => {
     console.info('Express listening on port', config.port);

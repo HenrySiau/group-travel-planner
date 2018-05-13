@@ -23,7 +23,7 @@ exports.getUsers = async (req, res) => {
     Trip.findAll({
         include: [{
             model: User, as: 'owner',
-            attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+            attributes: [['id', 'userId'], 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
         }]
     })
         .then(trips => {
@@ -69,7 +69,7 @@ exports.register = async (req, res) => {
                 where: { invitationCode: invitationCode },
                 include: [{
                     model: User, as: 'members',
-                    attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                    attributes: [['id', 'userId'], 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
                 }]
             })
                 .catch(error => {
@@ -155,7 +155,7 @@ exports.signIn = async (req, res) => {
                 where: { invitationCode: invitationCode },
                 include: [{
                     model: User, as: 'members',
-                    attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                    attributes: [['id', 'userId'], 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
                 }]
             })
                 .catch(error => {
@@ -182,7 +182,9 @@ exports.signIn = async (req, res) => {
                 where: { endDate: { [Sequelize.Op.gte]: Date.now() } },
                 order: ['endDate'],
                 limit: 1,
-                include: [{ model: User, as: 'members', attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL'] }]
+                include: [{ model: User, as: 'members', 
+                attributes: [['id', 'userId'], 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+            }],
             })
                 .then(results => {
                     if (results) {
@@ -234,7 +236,7 @@ exports.LoginWithFacebook = async (req, res) => {
                     where: { invitationCode: invitationCode },
                     include: [{
                         model: User, as: 'members',
-                        attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                        attributes: [['id', 'userId'], 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
                     }]
                 })
             ]).then(results => {
@@ -307,7 +309,7 @@ exports.LoginWithFacebook = async (req, res) => {
                 limit: 1,
                 include: [{
                     model: User, as: 'members',
-                    attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                    attributes: [['id', 'userId'], 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
                 }]
             })
                 .then(results => {
@@ -415,7 +417,7 @@ exports.loginWithToken = (req, res) => {
                                     limit: 1,
                                     include: [{
                                         model: User, as: 'members',
-                                        attributes: ['id', 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                                        attributes: [['id', 'userId'], 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
                                     }]
                                 })
                                     .then(results => {

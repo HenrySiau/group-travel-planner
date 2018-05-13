@@ -2,7 +2,6 @@ var { User, Trip } = require('../../models');
 var superSecret = require('../../config').superSecret;
 var jwt = require('jsonwebtoken');
 var config = require('../../config');
-var config = require('../../config');
 var instanceConfig = require('../../instanceConfig');
 const nodemailer = require('nodemailer');
 

@@ -3,6 +3,7 @@ var router = express.Router();
 var userControllers = require('./controllers/userController');
 var tripControllers = require('./controllers/tripController');
 var loginRequired = require('../helper').loginRequired;
+var chatController = require('./controllers/chatController');
 
 
 // test
@@ -20,5 +21,7 @@ router.post('/post/invitation/code/verify', tripControllers.verifyInvitationCode
 router.post('/post/signin', userControllers.signIn);
 router.post('/post/trip/join', loginRequired, tripControllers.addMemberToTrip);
 router.post('/post/members/invite', loginRequired, tripControllers.inviteMembers);
+router.post('/post/chat/message/new', loginRequired, chatController.newChatMessage);
+router.get('/get/chat/message', loginRequired, chatController.getChatMessage);
 
 exports.apiRouter = router;

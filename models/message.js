@@ -9,17 +9,31 @@ module.exports = (sequelize, DataTypes) => {
         },
         content: {
             type: DataTypes.STRING,
-        }
-
+            allowNull: false
+        },
+        // tripId: {
+        //     type: DataTypes.UUID,
+        //     allowNull: false
+        // },
+        // userId: {
+        //     type: DataTypes.UUID,
+        //     allowNull: false
+        // },
+        composedAt: {
+            type: DataTypes.DATE,
+            allowNull: false
+        },
     }, {});
     Message.associate = function (models) {
         Message.belongsTo(models.Trip, {
             as: 'trip',
             foreignKey: 'tripId',
+            allowNull: false,
         });
         Message.belongsTo(models.User, {
             as: 'owner',
-            foreignKey: 'ownerUserId',
+            foreignKey: 'userId',
+            allowNull: false,
         });
     };
     return Message;
