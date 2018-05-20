@@ -8,13 +8,18 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         title: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            allowNull: false
         },
         description: {
             type: DataTypes.STRING,
         },
         startAt: DataTypes.DATE,
         endAt: DataTypes.DATE,
+        link: DataTypes.STRING,
+        address: DataTypes.STRING,
+        lat: DataTypes.STRING,
+        lng: DataTypes.STRING,
 
     }, {});
     Idea.associate = function (models) {
