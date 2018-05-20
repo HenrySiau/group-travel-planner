@@ -34,10 +34,6 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'ownerUserId',
             allowNull: false,
         });
-        Trip.belongsTo(models.Itinerary, {
-            as: 'itinerary',
-            foreignKey: 'itineraryId',
-        });
         Trip.belongsToMany(models.User, {
             as: 'members',
             through: 'member',

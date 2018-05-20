@@ -20,6 +20,16 @@ module.exports = (sequelize, DataTypes) => {
         address: DataTypes.STRING,
         lat: DataTypes.STRING,
         lng: DataTypes.STRING,
+        inItinerary:{
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        type:{
+            type: DataTypes.STRING,
+            validate:{
+                isIn: [['Activity', 'Transport', 'Restaurant', 'Hotel']]
+            }
+        } 
 
     }, {});
     Idea.associate = function (models) {
@@ -30,10 +40,6 @@ module.exports = (sequelize, DataTypes) => {
         Idea.belongsTo(models.User, {
             as: 'owner',
             foreignKey: 'userId'
-        });
-        Idea.belongsTo(models.Itinerary, {
-            as: 'itinerary',
-            foreignKey: 'itineraryId'
         });
     };
     return Idea;

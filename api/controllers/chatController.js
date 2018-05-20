@@ -30,7 +30,7 @@ exports.getChatMessage = (req, res) => {
         Message.findAll({ where: { tripId: req.query.tripId }, limit: 100 }).then(messages => {
             console.log(messages)
             return res.status(200).json({
-                success: false,
+                success: true,
                 messages: messages
             })
         }).catch(error => {

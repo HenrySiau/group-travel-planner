@@ -25,5 +25,6 @@ router.post('/post/members/invite', loginRequired, tripControllers.inviteMembers
 router.post('/post/chat/message/new', loginRequired, chatController.newChatMessage);
 router.get('/get/chat/message', loginRequired, chatController.getChatMessage);
 router.post('/post/idea/new', loginRequired, ideaController.newIdea);
+router.get('/get/ideas', loginRequired, ideaController.getIdeas);
 
 exports.apiRouter = router;
