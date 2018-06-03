@@ -1,5 +1,7 @@
 var jwt = require('jsonwebtoken');
 var superSecret = require('./config').superSecret;
+const fs = require('fs');
+const sharp = require('sharp');
 /**
  * This is a description of the loginRequired middleware
  */
@@ -55,4 +57,23 @@ exports.mapMembers = members => {
     });
     console.log('mapMembers size: ' + membersMap.size);
     return membersMap;
+}
+
+exports.resizeImage = (path, newPath, width) => {
+    sharp(path)
+        .resize(parseInt(width))
+        .toFile(newPath, (err, info) => {
+            if (err) {
+                console.error(err);
+            }
+            if (info) {
+                console.log(`resized image: ${newPath} `);
+                fs.unlink(path, err => {
+                    if (err) {
+                        console.error(err);
+                    }
+                    console.log(`successfully deleted ${path}`);
+                });
+            }
+        });
 }

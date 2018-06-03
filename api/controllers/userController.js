@@ -4,6 +4,9 @@ var jwt = require('jsonwebtoken');
 var config = require('../../config');
 var Sequelize = require('sequelize');
 var settings = require('../../config');
+const fs = require('fs');
+const sizeOf = require('image-size');
+const sharp = require('sharp');
 
 const strip = (str) => {
     return str.replace(/^\s+|\s+$/g, '');
@@ -182,9 +185,10 @@ exports.signIn = async (req, res) => {
                 where: { endDate: { [Sequelize.Op.gte]: Date.now() } },
                 order: ['endDate'],
                 limit: 1,
-                include: [{ model: User, as: 'members', 
-                attributes: [['id', 'userId'], 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
-            }],
+                include: [{
+                    model: User, as: 'members',
+                    attributes: [['id', 'userId'], 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                }],
             })
                 .then(results => {
                     if (results) {
@@ -403,6 +407,7 @@ exports.loginWithToken = (req, res) => {
                     });
                 } else {
                     // fetch userInfo from database
+
                     // res.io.emit('new message', 'new message from Xiao');
                     // importedIo.emit('new message', 'new message from importedIo');
                     User.findById(decoded.userId).then(
@@ -485,3 +490,77 @@ exports.loginWithToken = (req, res) => {
 
 }
 
+exports.updateAvatar = (req, res) => {
+    const userId = req.decodedJWT.userId;
+    const updateUserProfilePicture = (req, res, profilePicture) => {
+        User.findById(userId).then(user => {
+            oldProfilePicture = user.profilePicture;
+            if (oldProfilePicture) {
+                fs.unlink(settings.imageUploadFolder + oldProfilePicture, err => {
+                    if (err) {
+                        console.error(err);
+                    }
+                    console.log(`successfully deleted ${oldProfilePicture}`);
+                    user.profilePicture = profilePicture;
+                    user.save().then(() => {
+                        res.status(200).json({
+                            success: true,
+                            newProfilePicture: profilePicture,
+                        });
+                    })
+                });
+            } else {
+                user.profilePicture = profilePicture;
+                user.save().then(() => {
+                    res.status(200).json({
+                        success: true,
+                        newProfilePicture: profilePicture,
+                    });
+                })
+            }
+
+        })
+    }
+
+    if (req.file) {
+        const imageType = req.body.imageType;
+        const fileName = req.file.filename;
+        const ext = '.' + imageType.substring(imageType.lastIndexOf('/') + 1);
+        console.log('ext: ' + ext);
+        fs.rename(req.file.path, settings.imageUploadFolder + fileName + ext, err => {
+            if (err) {
+                console.error(err);
+            } else {
+                let dimensions = sizeOf(settings.imageUploadFolder + fileName + ext);
+                if (dimensions && dimensions.width > 300) {
+                    sharp(settings.imageUploadFolder + fileName + ext)
+                        .resize(parseInt(500))
+                        .toFile(settings.imageUploadFolder + fileName + '-300' + ext, (err, info) => {
+                            if (err) {
+                                console.error(err);
+                            }
+                            if (info) {
+                                console.log(`resized image: ${settings.imageUploadFolder + fileName + '-300' + ext} `);
+                                fs.unlink(settings.imageUploadFolder + fileName + ext, err => {
+                                    if (err) {
+                                        console.error(err);
+                                    }
+                                    console.log(`successfully deleted ${settings.imageUploadFolder + fileName + ext}`);
+                                });
+
+                                updateUserProfilePicture(req, res, fileName + '-300' + ext);
+                            }
+                        });
+                } else {  // no need to resize
+                    updateUserProfilePicture(req, res, fileName + ext);
+                }
+            }
+        });
+    } else {  // no cover image received
+        res.status(200).json({
+            success: false,
+            message: 'no image received'
+        });
+    }
+
+}

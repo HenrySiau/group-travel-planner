@@ -15,5 +15,6 @@ module.exports = {
     superSecret: 'asdfnkko238klh&@ssd',
     // JWT valid for how many milliseconds
     // here we set it for 90 days
-    JWTDurationMS: 1000*60*60*24*90
+    JWTDurationMS: 1000*60*60*24*90,
+    imageUploadFolder: 'public/images/', 
 };

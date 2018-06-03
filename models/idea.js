@@ -20,16 +20,20 @@ module.exports = (sequelize, DataTypes) => {
         address: DataTypes.STRING,
         lat: DataTypes.STRING,
         lng: DataTypes.STRING,
-        inItinerary:{
+        inItinerary: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
-        type:{
+        type: {
             type: DataTypes.STRING,
-            validate:{
+            validate: {
                 isIn: [['Activity', 'Transport', 'Restaurant', 'Hotel']]
             }
-        } 
+        },
+        coverImage: {
+            type: DataTypes.STRING,
+            defaultValue: 'defaultCoverImage.jpeg',
+        },
 
     }, {});
     Idea.associate = function (models) {
