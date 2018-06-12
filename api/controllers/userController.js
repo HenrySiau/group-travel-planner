@@ -222,6 +222,8 @@ exports.signIn = async (req, res) => {
 
 //   https://localhost:3000/trip/join?code=LSDgXc58
 exports.LoginWithFacebook = async (req, res) => {
+    // if(req.hostname !== 'gtplanner.com'){
+    // }
     if (req.body.email && req.body.userName && req.body.accessToken) {
         const invitationCode = req.body.invitationCode;
         let user;

@@ -12,16 +12,17 @@ exports.newIdea = (req, res) => {
         description: req.body.description,
         link: req.body.link,
         // startAt: new Date(parseInt(req.body.startAt)).toString(),
-        startAt: req.body.startAt,
+        startAt: new Date(req.body.startAt),
         // endAt: new Date(parseInt(req.body.endAt)).toString(),
-        endAt: req.body.endAt,
+        endAt: new Date(req.body.endAt),
         userId: req.body.userId,
         tripId: req.body.tripId,
         type: req.body.type,
         lat: req.body.lat,
         lng: req.body.lng,
+        inItinerary: Boolean(req.body.inItinerary),
     };
-
+    console.log(idea);
     const storeIdeaToDB = (req, res, idea) => {
         if (req.body.title) {
             if (idea.userId === req.decodedJWT.userId) {
@@ -82,6 +83,7 @@ exports.newIdea = (req, res) => {
                             }
                         });
                 } else {  // no need to resize
+                    idea.coverImage = fileName + ext;
                     storeIdeaToDB(req, res, idea);
                 }
             }
@@ -89,10 +91,6 @@ exports.newIdea = (req, res) => {
     } else {  // no cover image received
         storeIdeaToDB(req, res, idea);
     }
-    console.log(idea);
-
-
-
 }
 
 exports.getIdeas = (req, res) => {
