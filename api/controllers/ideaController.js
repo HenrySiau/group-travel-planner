@@ -20,7 +20,7 @@ exports.newIdea = (req, res) => {
         type: req.body.type,
         lat: req.body.lat,
         lng: req.body.lng,
-        inItinerary: Boolean(req.body.inItinerary),
+        inItinerary: Boolean(Number(req.body.inItinerary)),
     };
     console.log(idea);
     const storeIdeaToDB = (req, res, idea) => {
