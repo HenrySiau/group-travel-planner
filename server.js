@@ -8,6 +8,7 @@ var models = require('./models');
 var SocketIo = require('socket.io');
 var multer = require('multer')
 var upload = multer({ dest: 'uploads/' })
+var path = require('path');
 const app = express();
 
 app.use(function (req, res, next) {
@@ -31,6 +32,9 @@ app.use(bodyParser.json());
 // use morgan to log requests to the console
 app.use(morgan('dev'));
 app.use('/api', apiRouter);
+app.get('/', (req, res) => {
+    res.sendFile(path.join(_dirname + '/public/index.html'));
+});
 
 app.post('/post/idea/new/test', upload.single('imageData'), function (req, res, next) {
     // req.file is the `avatar` file
