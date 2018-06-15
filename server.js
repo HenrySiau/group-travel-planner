@@ -16,7 +16,10 @@ app.use(function (req, res, next) {
 });
 
 // enable CORSS(Cross Origin Resource Sharing)
-app.use(cors());
+var corsOptions = {
+    origin: 'https://gtplanner.com',
+  }
+app.use(cors(corsOptions));
 
 // enable public static files
 app.use(express.static('public'));
