@@ -131,3 +131,38 @@ exports.deleteIdea = (req, res) => {
             })
     }
 }
+
+
+exports.addToItinerary = (req, res) => {
+    const ideaId = req.body.ideaId;
+    if (ideaId) {
+        Idea.findById(ideaId).then(idea => {
+            idea.update({ inItinerary: true }).then(() => {
+                return res.status(200).json({
+                    success: true,
+                    message: `ideaId: ${ideaId} had been updated`
+                })
+            })
+        })
+            .catch(error => {
+                console.log(error);
+            })
+    }
+}
+
+exports.removeFromItinerary = (req, res) => {
+    const ideaId = req.body.ideaId;
+    if (ideaId) {
+        Idea.findById(ideaId).then(idea => {
+            idea.update({ inItinerary: false }).then(() => {
+                return res.status(200).json({
+                    success: true,
+                    message: `ideaId: ${ideaId} had been updated`
+                })
+            })
+        })
+            .catch(error => {
+                console.log(error);
+            })
+    }
+}

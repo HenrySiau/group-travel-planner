@@ -40,6 +40,8 @@ router.post('/post/chat/message/new', loginRequired, chatController.newChatMessa
 router.get('/get/chat/message', loginRequired, chatController.getChatMessage);
 router.post('/post/idea/new', loginRequired, upload.single('imageData'), ideaController.newIdea);
 router.post('/post/idea/delete', loginRequired, ideaController.deleteIdea);
+router.post('/post/idea/addToItinerary', loginRequired, ideaController.addToItinerary);
+router.post('/post/idea/removeFromItinerary', loginRequired, ideaController.removeFromItinerary);
 router.post('/post/avatar/update', loginRequired, upload.single('imageData'), userController.updateAvatar);
 router.get('/get/ideas', loginRequired, ideaController.getIdeas);
 router.get('/get/trips', loginRequired, tripController.getTrips);
