@@ -12,7 +12,10 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         description: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
+            validate: {
+                len: [0, 800]
+            }
         },
         startAt: DataTypes.DATE,
         endAt: DataTypes.DATE,

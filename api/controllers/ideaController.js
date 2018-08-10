@@ -113,3 +113,21 @@ exports.getIdeas = (req, res) => {
     }
 }
 
+exports.deleteIdea = (req, res) => {
+    const ideaId = req.body.ideaId;
+    if (ideaId) {
+        Idea.destroy({
+            where: {
+                id: ideaId
+            }
+        }).then(deletedIdea => {
+            return res.status(200).json({
+                success: true,
+                message: `ideaId: ${ideaId} had been deleted`
+            })
+        })
+            .catch(error => {
+                console.log(error);
+            })
+    }
+}
