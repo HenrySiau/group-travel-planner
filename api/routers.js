@@ -39,7 +39,10 @@ router.post('/post/members/invite', loginRequired, tripController.inviteMembers)
 router.post('/post/chat/message/new', loginRequired, chatController.newChatMessage);
 router.get('/get/chat/message', loginRequired, chatController.getChatMessage);
 router.post('/post/idea/new', loginRequired, upload.single('imageData'), ideaController.newIdea);
+router.post('/post/idea/delete', loginRequired, ideaController.deleteIdea);
 router.post('/post/avatar/update', loginRequired, upload.single('imageData'), userController.updateAvatar);
 router.get('/get/ideas', loginRequired, ideaController.getIdeas);
+router.get('/get/trips', loginRequired, tripController.getTrips);
+router.get('/get/fullTripInfo', loginRequired, tripController.getFullTripInfo);
 
 exports.apiRouter = router;

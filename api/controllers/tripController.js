@@ -289,3 +289,39 @@ exports.inviteMembers = function (req, res) {
         });
     }
 }
+
+exports.getTrips = (req, res) => {
+    console.log(req);
+    const userId = req.decodedJWT.userId;
+    Trip.findAll({ where: { ownerUserId: userId }, limit: 100 }).then(result => {
+        console.log(result)
+        return res.status(200).json({
+            success: true,
+            trips: result,
+        });
+    }).catch(error => {
+        console.error(error);
+    })
+
+}
+
+exports.getFullTripInfo = (req, res) => {
+    // TODO authorization
+    if (req.query.tripId) {
+        Trip.findOne({
+            where: { id: req.query.tripId },
+            include: [{
+                model: User, as: 'members',
+                attributes: [['id', 'userId'], 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+            }]
+        }).then(trip => {
+            return res.status(200).json({
+                success: true,
+                trip: trip,
+            });
+        })
+            .catch(error => {
+                console.error(error);
+            })
+    }
+}
