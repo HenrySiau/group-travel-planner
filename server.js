@@ -45,8 +45,8 @@ app.post('/post/idea/new/test', upload.single('imageData'), function (req, res, 
 
 // let counter = 'cccc';
 
-// models.sequelize.sync({force:true});
-models.sequelize.sync();
+models.sequelize.sync({force:true});
+// models.sequelize.sync();
 const server = app.listen(config.port, config.host, () => {
     console.info('Express listening on port', config.port);
     // counter = 8;
