@@ -96,7 +96,12 @@ exports.newIdea = (req, res) => {
 exports.getIdeas = (req, res) => {
     // TODO authorization
     if (req.query.tripId) {
-        Idea.findAll({ where: { tripId: req.query.tripId } }).then(ideas => {
+        Idea.findAll({
+            where: { tripId: req.query.tripId },
+            order: [
+                ['startAt'],
+            ]
+        }).then(ideas => {
             console.log(ideas);
             return res.status(200).json({
                 success: true,
