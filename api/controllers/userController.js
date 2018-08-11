@@ -412,27 +412,29 @@ exports.loginWithToken = (req, res) => {
 
                     // res.io.emit('new message', 'new message from Xiao');
                     // importedIo.emit('new message', 'new message from importedIo');
-                    User.findById(decoded.userId).then(
+                    User.findById(decoded.userId, {
+                        include: [{
+                            model: Trip, as: 'defaultTrip',
+                        }]
+                    }).then(
                         async (user) => {
                             if (user) {
                                 let tripInfo;
                                 // fetch default trip
                                 console.log('get default trip');
-                                if (user.defaultTripId) {
-                                     await Trip.findById(userInfo.defaultTripId).then(async trip => {
-                                        if(trip){
-                                            tripInfo = {
-                                                tripId: trip.id,
-                                                title: trip.title,
-                                                description: trip.description,
-                                                owner: trip.owner,
-                                                members: trip.members,
-                                                startDate: trip.startDate,
-                                                endDate: trip.endDate,
-                                                invitationCode: trip.invitationCode
-                                            }
-                                        }
-                                    })
+                                let defaultTrip = user.defaultTrip;
+                                if (defaultTrip) {
+                                    tripInfo = {
+                                        tripId: defaultTrip.id,
+                                        title: defaultTrip.title,
+                                        description: defaultTrip.description,
+                                        owner: defaultTrip.owner,
+                                        members: defaultTrip.members,
+                                        startDate: defaultTrip.startDate,
+                                        endDate: defaultTrip.endDate,
+                                        invitationCode: defaultTrip.invitationCode
+                                    }
+
                                 } else {
                                     await user.getTrips({
                                         where: { endDate: { [Sequelize.Op.gte]: Date.now() } },
@@ -581,6 +583,46 @@ exports.updateAvatar = (req, res) => {
             success: false,
             message: 'no image received'
         });
+    }
+
+}
+
+exports.updateDefaultTrip = (req, res) => {
+    const userId = req.decodedJWT.userId;
+    if (req.body) {
+        const tripId = req.body.tripId;
+        if (tripId) {
+
+            // find user
+            User.findById(userId, {
+                include: [{
+                    model: Trip, as: 'defaultTrip',
+                }]
+            }).then(user => {
+                if (user) {
+                    // find trip
+                    Trip.findById(tripId).then(trip => {
+                        if (trip) {
+                            // set trip to user.defaultTrip
+                            user.setDefaultTrip(trip).then((updatedUser) => {
+                                return res.status(200).json({
+                                    success: true,
+                                    message: `default trip: ${tripId} had been updated`,
+                                    user: updatedUser,
+                                })
+                            })
+                        }
+
+                    })
+                        .catch(error => {
+                            console.log(error);
+                        })
+                }
+            })
+                .catch(error => {
+                    console.log(error);
+                })
+        }
     }
 
 }

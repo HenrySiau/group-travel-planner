@@ -62,7 +62,10 @@ module.exports = (sequelize, DataTypes) => {
     User.hasOne(models.Trip, {
       as: 'defaultTrip',
       foreignKey: 'defaultTripId',
-  });
+      allowNull: true,
+      defaultValue: null
+    });
+
   };
   return User;
 };

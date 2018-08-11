@@ -26,8 +26,7 @@ router.get('/test', (req, res) => {
     res.send('hello');
 });
 router.post('/post/user/register', userController.register);
-router.get('/user/add', userController.setUser);
-router.get('/user', userController.getUsers);
+router.post('/post/user/updateDefaultTrip', loginRequired, userController.updateDefaultTrip);
 router.post('/post/email/exist', userController.validateEmailExist);
 router.post('/post/login/token', userController.loginWithToken);
 router.post('/post/trip/new', loginRequired, tripController.createTrip);
