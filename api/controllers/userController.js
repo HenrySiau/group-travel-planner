@@ -418,33 +418,51 @@ exports.loginWithToken = (req, res) => {
                                 let tripInfo;
                                 // fetch default trip
                                 console.log('get default trip');
-                                await user.getTrips({
-                                    where: { endDate: { [Sequelize.Op.gte]: Date.now() } },
-                                    order: ['endDate'],
-                                    limit: 1,
-                                    include: [{
-                                        model: User, as: 'members',
-                                        attributes: [['id', 'userId'], 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
-                                    }]
-                                })
-                                    .then(results => {
-                                        if (results) {
-                                            const defaultTrip = results[0];
-                                            if (defaultTrip) {
-                                                tripInfo = {
-                                                    tripId: defaultTrip.id,
-                                                    title: defaultTrip.title,
-                                                    description: defaultTrip.description,
-                                                    owner: defaultTrip.owner,
-                                                    members: defaultTrip.members,
-                                                    startDate: defaultTrip.startDate,
-                                                    endDate: defaultTrip.endDate,
-                                                    invitationCode: defaultTrip.invitationCode
-                                                }
+                                if (user.defaultTripId) {
+                                     await Trip.findById(userInfo.defaultTripId).then(async trip => {
+                                        if(trip){
+                                            tripInfo = {
+                                                tripId: trip.id,
+                                                title: trip.title,
+                                                description: trip.description,
+                                                owner: trip.owner,
+                                                members: trip.members,
+                                                startDate: trip.startDate,
+                                                endDate: trip.endDate,
+                                                invitationCode: trip.invitationCode
                                             }
                                         }
-
                                     })
+                                } else {
+                                    await user.getTrips({
+                                        where: { endDate: { [Sequelize.Op.gte]: Date.now() } },
+                                        order: ['endDate'],
+                                        limit: 1,
+                                        include: [{
+                                            model: User, as: 'members',
+                                            attributes: [['id', 'userId'], 'userName', 'email', 'profilePicture', 'facebookProfilePictureURL']
+                                        }]
+                                    })
+                                        .then(results => {
+                                            if (results) {
+                                                const defaultTrip = results[0];
+                                                if (defaultTrip) {
+                                                    tripInfo = {
+                                                        tripId: defaultTrip.id,
+                                                        title: defaultTrip.title,
+                                                        description: defaultTrip.description,
+                                                        owner: defaultTrip.owner,
+                                                        members: defaultTrip.members,
+                                                        startDate: defaultTrip.startDate,
+                                                        endDate: defaultTrip.endDate,
+                                                        invitationCode: defaultTrip.invitationCode
+                                                    }
+                                                }
+                                            }
+
+                                        })
+                                }// end else
+
                                 // update token
                                 const payload = {
                                     userId: user.id,
