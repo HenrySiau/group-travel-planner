@@ -16,7 +16,7 @@ app.use(function (req, res, next) {
 });
 
 // enable CORSS(Cross Origin Resource Sharing)
-app.use(cors());
+// app.use(cors());
 
 // enable public static files
 app.use(express.static('public'));
