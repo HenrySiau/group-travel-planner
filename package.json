@@ -1,6 +1,6 @@
 {
     "name": "group-travel-planner",
-    "version": "0.2.0",
+    "version": "0.2.2",
     "description": "Discuss, and organize trip ideas together",
     "main": "index.js",
     "scripts": {

@@ -42,7 +42,9 @@ app.post('/post/idea/new/test', upload.single('imageData'), function (req, res, 
 })
 
 
-
+app.get('/*', function (req, res){
+    res.sendFile(path.join(__dirname, '/public/index.html'))
+})
 // let counter = 'cccc';
 
 // models.sequelize.sync({force:true});
