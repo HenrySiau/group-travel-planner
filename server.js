@@ -9,6 +9,7 @@ var SocketIo = require('socket.io');
 var multer = require('multer')
 var upload = multer({ dest: 'uploads/' })
 const app = express();
+const path = require('path');
 
 app.use(function (req, res, next) {
     res.io = io;
@@ -19,6 +20,7 @@ app.use(function (req, res, next) {
 app.use(cors());
 
 // enable public static files
+
 app.use(express.static('public'));
 
 // use body parser so we can get info from POST and/or URL parameters
@@ -42,9 +44,13 @@ app.post('/post/idea/new/test', upload.single('imageData'), function (req, res, 
 })
 
 
+// handle /join/trip/* and other routes
 app.get('/*', function (req, res){
     res.sendFile(path.join(__dirname, '/public/index.html'))
 })
+
+
+
 // let counter = 'cccc';
 
 // models.sequelize.sync({force:true});

@@ -9,9 +9,10 @@ var env = process.env.NODE_ENV || 'development';
 var instanceConfig = require('../instanceConfig');
 var db = {};
 
-
 var sequelize = new Sequelize(instanceConfig.database, instanceConfig.databaseUsername, instanceConfig.databasePassword, {
-  dialect: 'postgres'});
+  dialect: 'postgres',
+  logging: false
+});
 
 
 fs
@@ -31,6 +32,5 @@ Object.keys(db).forEach(modelName => {
 });
 
 db.sequelize = sequelize;
-db.Sequelize = Sequelize;
 
 module.exports = db;

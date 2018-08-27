@@ -206,7 +206,7 @@ exports.addMemberToTrip = async (req, res) => {
                 ]
             })
         ]).then(results => {
-            console.log('results: ' + results);
+            // console.log('results: ' + results);
             user = results[0];
             trip = results[1];
         }).catch(error => {
@@ -276,7 +276,7 @@ exports.inviteMembers = function (req, res) {
             if (err)
                 console.log(err)
             else
-                console.log(info);
+                // console.log(info);
             return res.status(200).json({
                 success: true,
                 numberOfEmails: req.body.emailList.length
@@ -291,10 +291,10 @@ exports.inviteMembers = function (req, res) {
 }
 
 exports.getTrips = (req, res) => {
-    console.log(req);
+    // console.log(req);
     const userId = req.decodedJWT.userId;
     Trip.findAll({ where: { ownerUserId: userId }, limit: 100 }).then(result => {
-        console.log(result)
+        // console.log(result)
         return res.status(200).json({
             success: true,
             trips: result,
