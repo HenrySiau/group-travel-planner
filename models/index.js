@@ -11,9 +11,9 @@ var db = {};
 
 
 var sequelize = new Sequelize(instanceConfig.database, instanceConfig.databaseUsername, instanceConfig.databasePassword, {
-  dialect: 'postgres'});
-
-
+  dialect: 'postgres',
+  logging: false
+});
 fs
   .readdirSync(__dirname)
   .filter(file => {

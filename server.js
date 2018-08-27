@@ -9,6 +9,7 @@ var SocketIo = require('socket.io');
 var multer = require('multer')
 var upload = multer({ dest: 'uploads/' })
 const app = express();
+const path = require('path');
 
 app.use(function (req, res, next) {
     res.io = io;
